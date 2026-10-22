@@ -1,0 +1,51 @@
+{
+  "name": "splitlink",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.25.0",
+  "engines": {
+    "node": ">=22 <25"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "compile": "node scripts/compile.mjs",
+    "test": "pnpm compile && hardhat test --no-compile && tsx --test tests/*.test.ts",
+    "test:browser": "playwright test",
+    "local:chain": "hardhat node --hostname 127.0.0.1",
+    "local:deploy": "node scripts/local-deploy.mjs",
+    "check:arc": "node scripts/arc-readonly.mjs",
+    "deploy:plan": "node scripts/deploy-plan.mjs",
+    "test:arc": "node scripts/arc-integration.mjs",
+    "test:local": "tsx --test tests/integration/*.test.ts",
+    "format:check": "prettier --check src scripts tests test *.ts *.cjs *.json",
+    "ci:local": "node scripts/ci.mjs",
+    "test:arc:browser": "RUN_ARC_READONLY=true playwright test --grep \"production browser can read real Arc\"",
+    "delivery:local": "node scripts/delivery-check.mjs --local",
+    "submission:check": "node scripts/delivery-check.mjs"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "5.4.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "viem": "2.37.6",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.55.1",
+    "@types/node": "24.3.0",
+    "@types/react": "19.1.12",
+    "@types/react-dom": "19.1.9",
+    "@vitejs/plugin-react": "4.7.0",
+    "ethers": "6.15.0",
+    "fast-check": "4.3.0",
+    "hardhat": "2.29.1",
+    "prettier": "3.6.2",
+    "solc": "0.8.30",
+    "tsx": "4.20.5",
+    "typescript": "5.9.2",
+    "vite": "6.4.5"
+  }
+}

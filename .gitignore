@@ -1,0 +1,16 @@
+node_modules/
+dist/
+artifacts/
+cache/
+test-results/
+playwright-report/
+.env
+.env.local
+public/local-manifest.json
+outputs/local-deployment.json
+outputs/browser-*.png
+
+# CI services/logs and delivery archives are generated locally.
+outputs/ci/local-chain.log
+outputs/*.zip
+outputs/*.sha256

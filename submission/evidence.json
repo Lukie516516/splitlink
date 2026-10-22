@@ -1,0 +1,22 @@
+{
+  "project": "SplitLink",
+  "status": "blocked-external-prerequisites",
+  "eventUrl": "https://dorahacks.io/hackathon/arc-microgrants-2/detail",
+  "rulesVerifiedAt": null,
+  "acceptedStudioWorkflowEvidence": null,
+  "deadlineWithTimezone": null,
+  "builderProfileUrl": "https://github.com/Lukie516516",
+  "studioProjectUrl": null,
+  "studioExportRevision": null,
+  "publicRepositoryUrl": "https://github.com/Lukie516516/splitlink",
+  "publicAppUrl": null,
+  "canonicalTokenIntegrationEvidence": null,
+  "mainnetContractAddress": null,
+  "mainnetDeploymentBlock": null,
+  "mainnetSettlementHash": null,
+  "mainnetExplorerUrl": null,
+  "actualHostAcceptanceEvidence": null,
+  "videoUrl": null,
+  "submissionReceiptUrl": null,
+  "note": "Null means missing. Local mock results do not fill external evidence fields. Submission has not occurred."
+}

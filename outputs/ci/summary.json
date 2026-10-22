@@ -1,0 +1,199 @@
+{
+  "startedAt": "2026-10-22T10:30:16.873Z",
+  "status": "passed",
+  "scope": "isolated local EVM and browser; external release/eligibility not certified",
+  "node": "v24.19.0",
+  "stages": [
+    {
+      "name": "install",
+      "command": "pnpm install --frozen-lockfile",
+      "status": "passed"
+    },
+    {
+      "name": "dependency-audit",
+      "command": "pnpm audit --audit-level high --json",
+      "status": "passed"
+    },
+    {
+      "name": "unit-contract",
+      "command": "pnpm test",
+      "status": "passed"
+    },
+    {
+      "name": "format",
+      "command": "pnpm format:check",
+      "status": "passed"
+    },
+    {
+      "name": "local-deployment",
+      "command": "pnpm local:deploy",
+      "status": "passed"
+    },
+    {
+      "name": "local-integration",
+      "command": "pnpm test:local",
+      "status": "passed"
+    },
+    {
+      "name": "browser-build",
+      "command": "pnpm build",
+      "status": "passed"
+    },
+    {
+      "name": "browser",
+      "command": "pnpm test:browser",
+      "status": "passed"
+    },
+    {
+      "name": "release-build",
+      "command": "pnpm build",
+      "status": "passed"
+    }
+  ],
+  "source": {
+    "sha256": "5d6443c4aca7655799c411be914e13231acb00f36aef0ccb5b9cd7d19be2166d",
+    "files": [
+      {
+        "file": ".github/workflows/ci.yml",
+        "sha256": "5655d27573bca35904ed17a36a3465f58c11abd322130d1db7f101ea12d43d14"
+      },
+      {
+        "file": "contracts/LocalMockUSDC.sol",
+        "sha256": "e776577801130b566a1cbc470edd193e236333601b9dcd523e43a0bfe2263c1e"
+      },
+      {
+        "file": "contracts/SplitLink.sol",
+        "sha256": "bbef5fd68bfc8242d3cfea535ec5a53ce26f27b8c9c8e595657305301c352246"
+      },
+      {
+        "file": "docs/splitlink-design-v1.1.md",
+        "sha256": "65aa1d7adfdcdee7d97d862fc256f8b157e08c7757ef07020782b73d491f5987"
+      },
+      {
+        "file": "hardhat.config.cjs",
+        "sha256": "1455919661bacea31b82a9c6ec35b80a51ad3f2ebdbedad6a5ee3811ce3e0b79"
+      },
+      {
+        "file": "index.html",
+        "sha256": "9f676170b11256f0e4ed98ca859a25ddcaac930deb850f6a23d7902c98aa36a9"
+      },
+      {
+        "file": "package.json",
+        "sha256": "16ab77fca7aeaba247b966ad1f3935f956e91978c9d603fc41e74f913f4a5a33"
+      },
+      {
+        "file": "playwright.config.ts",
+        "sha256": "15c1f4158b9150d1cbbb0f3a8d797168277c5ad77758b6df426c1b2a12edeaad"
+      },
+      {
+        "file": "pnpm-lock.yaml",
+        "sha256": "1575c6ef92dd29fd6afcd4482afa310c49074ce4729040daf377235f9d64426b"
+      },
+      {
+        "file": "pnpm-workspace.yaml",
+        "sha256": "cac372f80541f1a43acbe6d1bbbcb4c3893fa7054d3f4a172ff2dd8824942914"
+      },
+      {
+        "file": "public/_redirects",
+        "sha256": "6036983e5fc00f0169c9e939b1816ed771eee00e27f2fcc517b819041460b9ef"
+      },
+      {
+        "file": "scripts/arc-integration.mjs",
+        "sha256": "46472e8c453026cdaf7cec892e1f10ffe6917aceee89db080c9ea4e5473a4e5e"
+      },
+      {
+        "file": "scripts/arc-readonly.mjs",
+        "sha256": "2b6f5965a15ead4a50cfccfb5a54f13ae009897523031f82771cac42ed27e73d"
+      },
+      {
+        "file": "scripts/ci.mjs",
+        "sha256": "576c2e4558a5001cdba5c07993d54e15d5d0ab6a2d08c9bf0899a6f0d9dd955a"
+      },
+      {
+        "file": "scripts/compile.mjs",
+        "sha256": "4e2a3e802a2ef2ba82bb4beb2d3f2255dab1bc4ce0eff7c8197b382f70e974b5"
+      },
+      {
+        "file": "scripts/delivery-check.mjs",
+        "sha256": "5e6632c1719e191ecf3a90d0b8f5325dd59ba62782317dd54d69613d0bc9ff99"
+      },
+      {
+        "file": "scripts/deploy-plan.mjs",
+        "sha256": "029d4c4870ce87b71fff264d3c8c44c6f98cc86c8d7587c383533b427654e74a"
+      },
+      {
+        "file": "scripts/local-deploy.mjs",
+        "sha256": "b10f8379dd55f46ad4d4100bddef4e2583b189ee875207989952c2d726bf17bb"
+      },
+      {
+        "file": "scripts/source-fingerprint.mjs",
+        "sha256": "e654a072db5f7b4e6f621683558efd4ab2346f42d0334483a5a636f45875ba74"
+      },
+      {
+        "file": "src/App.tsx",
+        "sha256": "5b589a686e6c579fc5b8c47a220603a40d1fbd2629869643f1763632e4c315a8"
+      },
+      {
+        "file": "src/abi.ts",
+        "sha256": "6d79dcde6924221b86bc8fa2011d290a9fe459ffcd9da3fdebd9b919c8952d7f"
+      },
+      {
+        "file": "src/core/chain.ts",
+        "sha256": "8f2a365c88b9cd1524b84ba44998baac77ea9d2c9bfdd5ca29216bfc37100d71"
+      },
+      {
+        "file": "src/core/history.ts",
+        "sha256": "71bf14e39ee4ddb10e1a2bf24825a57eee19ac95c649863b5e213f4a19d35231"
+      },
+      {
+        "file": "src/core/journal.ts",
+        "sha256": "49744b19a59cfedef43177672f809b3149961def13ead9a87937d56822d255ff"
+      },
+      {
+        "file": "src/core/manifest.ts",
+        "sha256": "d3c0a5fd95776bc0014e2218f295568c1d6b13d69e3ef01efb420e73c8370943"
+      },
+      {
+        "file": "src/core/math.ts",
+        "sha256": "948a95ee8fa07e98dbd590907eee7c9b3c3eb17860409de19faa16582db7b1ea"
+      },
+      {
+        "file": "src/main.tsx",
+        "sha256": "d3c0cf50549b4f3d58f76244789a46e8d1658ac7136da025ee29debce7a9c7bc"
+      },
+      {
+        "file": "src/style.css",
+        "sha256": "b790bd46a0c6901cb26a3932d0e7b0ab1d09ed120c5a7e36094f6dcaa4543e88"
+      },
+      {
+        "file": "test/splitlink.cjs",
+        "sha256": "3de540dbd2f0e8052817a58efb2dabf4717ff7b4fad91e434c17cb3398ab4522"
+      },
+      {
+        "file": "tests/browser/app.spec.ts",
+        "sha256": "bc190b090652693357c218c79f0646f51d27080d48d2db093c6243f9ffd477b4"
+      },
+      {
+        "file": "tests/core.test.ts",
+        "sha256": "b72fcaca3275c7666b4ee45a7d42210dde910f6a048b7e8f0f9ea7e6e7935098"
+      },
+      {
+        "file": "tests/integration/chain.test.ts",
+        "sha256": "906092819894decd5913c2936b02bbffbf089eddacec2090f59336e6fd600893"
+      },
+      {
+        "file": "tsconfig.json",
+        "sha256": "76cde6eb219d469026f7ae01a1163409c4e7d343312454263df6d10c9f39d66b"
+      },
+      {
+        "file": "vercel.json",
+        "sha256": "b3fbf495670fea4bef8c6969dc624a1ad57436af4079ecc0203a56403bd6944d"
+      },
+      {
+        "file": "vite.config.ts",
+        "sha256": "d73fea6a8a8aa223d42b0abf09ee1560fcc8ff63fffb2d74e5efa3f08bd8c07f"
+      }
+    ]
+  },
+  "finishedAt": "2026-10-22T10:33:35.201Z"
+}
