@@ -1,0 +1,9 @@
+# Dependency review — October 22, 2026
+
+The initial dependency audit reported 17 high-severity advisories (0 critical). Runtime and build dependencies were reviewed separately. Same-major direct upgrades pin Vite 6.4.5, Hardhat 2.29.1 and Playwright 1.55.1. Explicit lockfile overrides patch affected ws, undici/busboy, adm-zip, serialize-javascript and tmp paths. These overrides cross some transitive major/minor boundaries and therefore require the full compiler, RPC and browser regression suite; they are not assumed compatible solely from version numbers. See the current CI summary for the actual result.
+
+After remediation, the production audit reports zero known advisories; the full dependency audit reports zero high/critical, with three low and one moderate advisories in development tooling. Raw results are retained in outputs/dependency-audit-after.json and outputs/dependency-audit-production.json. pnpm ci:local blocks on future high/critical findings or audit transport failures. These are dated registry observations, not proof that software has no vulnerabilities.
+
+Remaining development-only paths are cookie (low), elliptic (low, no patched release listed), diff (low) and uuid (moderate). The local runner uses only isolated loopback services, controlled local test inputs and no production credentials. No test runner, archive parser or compiler service is publicly hosted. Avoiding forced API-incompatible replacement of these lower-severity development paths is an explicit residual limitation, not a silently ignored high finding. Reassess if tools receive untrusted patches, nonlocal requests, custom UUID buffers or deployment credentials.
+
+The production client is a static build; Hardhat/solc/Mocha/Playwright and their development parsers are not a runtime server in that build. Browser-delivered ws paths were patched as well. Actual Arc release and competition provenance remain independently gated.

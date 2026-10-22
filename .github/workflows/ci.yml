@@ -1,0 +1,43 @@
+name: SplitLink CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: splitlink-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  local-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.19.0'
+      - name: Install pinned package manager and browser
+        run: |
+          npm install --global pnpm@11.25.0
+          pnpm install --frozen-lockfile
+          pnpm exec playwright install --with-deps chromium
+      - name: Compile, test, browser checks and release isolation
+        run: pnpm ci:local
+      - name: Preserve diagnostics even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: splitlink-ci-${{ github.sha }}
+          retention-days: 14
+          path: |
+            outputs/ci/summary.json
+            outputs/ci/unit-contract.log
+            outputs/ci/dependency-audit.log
+            outputs/ci/format.log
+            outputs/ci/local-integration.log
+            outputs/ci/browser.log
+            outputs/ci/browser-build.log
+            outputs/ci/release-build.log
+            outputs/browser-results.json
+            test-results/

@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/create", "destination": "/index.html" },
+    { "source": "/pay/:path*", "destination": "/index.html" },
+    { "source": "/receipt/:path*", "destination": "/index.html" }
+  ]
+}
