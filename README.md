@@ -1,91 +1,74 @@
-# SplitLink
+# SplitLink — Studio source, completed externally after export
 
-One fixed USDC payment, atomically split among 2–5 team members. Immutable ordered terms, public single-use requests, creator cancellation, zero platform fee, verified public receipts, event-based My requests and a browser-local transaction journal.
+This independent candidate continues the actual partial Studio export `studio-export-06-partial` with missing support files from `studio-snapshot-01`. The Studio account stopped at its daily quota during remediation round three. Subsequent modifications and tests are external local development, **not work executed in Studio**. The reviewed original root application is not copied into this candidate and stays unchanged. See `docs/external-base-provenance.json` and the top-level `outputs/studio-local-development-report.md`.
 
-**Current provenance: local implementation.** Arc canonical integration, Studio origin, public-host acceptance, release readiness and competition eligibility are not established. The public source repository is https://github.com/Lukie516516/splitlink. No external chain transactions, real wallet signatures or competition submission have been performed. See [implementation report](outputs/splitlink-v1.1-implementation-report.md) and [release gates](docs/release-plan.md).
+A fixed, public, single-use USDC link splits atomically among 2–5 recipients. Ordered terms never change; shares sum to 10000 bps; the final recipient gets the integer remainder. Any wallet may pay; the creator may cancel Open requests. There is no platform fee, owner, escrow, refund, relay, backend or database. Public requests and receipt evidence use dedicated public-chain reads without a wallet. The Studio-origin contract is retained byte-for-byte.
 
-## Toolchain
+## Pinned environment
 
-Validated here with Node 24.19.0, pnpm 11.25.0, Hardhat 2.26.3, solc 0.8.30 (`73712a01`), optimizer 200, Cancun EVM target. Node 22–24 is accepted. Direct dependencies and `pnpm-lock.yaml` are pinned; use `pnpm install --frozen-lockfile`. No global Solidity compiler or wallet secrets are required. `pnpm-workspace.yaml` permits build scripts only for esbuild and keccak.
+Node **24.19.0**, pnpm **11.25.0**, Bun **1.4.3**, Foundry Forge/Anvil **1.7.1**, Solidity **0.8.28**, optimizer 200, Paris bytecode. `pnpm-lock.yaml` pins all dependency resolutions. `pnpm-workspace.yaml` restricts allowed install builds and pins audited overrides for tmp/PostCSS. Native Forge/Anvil/Bun are installed as exact dev dependencies; no global tools or wallet keys are needed for local checks.
 
-This machine's Node is bundled outside PATH. If needed:
+On this desktop:
 
 ```sh
 export PATH="/Users/lukie/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH"
+cd /Users/lukie/Documents/ChatGPT/hackthon/outputs/studio-local-release
+pnpm install --frozen-lockfile
 ```
 
-## Install and verify
+## Verify everything locally
 
 ```sh
-pnpm install --frozen-lockfile
-pnpm compile
+pnpm contracts:test
 pnpm test
+pnpm typecheck
+pnpm format:check
+pnpm audit --audit-level high
+pnpm exec playwright install chromium
+pnpm ci:local
 pnpm build
 ```
 
-For the complete isolated CI run (including automatic local-chain lifecycle and browser tests), install Chromium and run `pnpm ci:local`. See [CI and review workflow](docs/ci-workflow.md). The GitHub workflow runs on pushes and pull requests in the public repository; consult its Actions page for the actual latest hosted result. The original tool versions and results below describe the first implementation run; current exact dependencies are in `package.json` and the current CI report.
+`ci:local` refuses an occupied port, owns an isolated Anvil on **9547**, compiles the actual Studio contract and generated ABI, deploys a labeled local mock, tests the production runner, builds with the local fixture enabled, runs Chromium on production preview **4274**, and stops only its chain. Playwright owns/cleans the preview. No connection to root ports 8545/4173 is used. The workflow `.github/workflows/ci.yml` runs the same commands in a standalone repository tree; it has been executed locally, not pushed or run on hosted CI in this task. Browser evidence lands in `evidence/`.
 
-`pnpm delivery:local` requires both CI and independent review approval for the exact current source fingerprint. `pnpm submission:check` additionally lists missing external evidence and fails until supplied; complete fields alone do not certify eligibility. English entry copy, recording plan and the evidence register are in `submission/`. No submission receipt currently exists.
+Foundry's original 80 tests include 30 pure/model or supplementary integration cases and 50 main contract cases; they do not prove browser behavior. Additional external Solidity tests exercise the actual contract, including reentry and five-recipient fuzz allocation. Bun tests invoke production modules. The two independent export05 recovery regressions are included. Legacy Studio TS tests are preserved under `docs/original-tests/`, outside executable discovery, because their old mocks/model assumptions do not exercise the new shared controller. They are not counted as this candidate's passing suite.
 
-`pnpm test` compiles once, runs contract integration/property tests against an isolated Hardhat EVM, then exact-math/journal/history tests. `pnpm build` includes strict TypeScript checking. Hardhat artifacts are generated; the frontend's generated ABI is tracked. The design source is copied unmodified under `docs/` with source/hash attribution in [architecture](docs/architecture.md).
-
-## Run locally
-
-For a public-read UI with unconfigured Arc writes:
+## Run the app manually
 
 ```sh
-pnpm dev
-```
-
-Open `http://127.0.0.1:5173/create`. Without a verified deployment, the app explicitly disables writes. No sample deployment pretends to be Arc.
-
-For the complete **LOCAL MOCK ONLY** integration, use two terminals:
-
-```sh
-# Terminal 1 — isolated loopback EVM, chain 31337
+# Terminal 1, candidate directory
 pnpm local:chain
-```
 
-```sh
-# Terminal 2 — deploy only to hardcoded loopback/chain 31337
+# Terminal 2, same directory
 pnpm compile
 pnpm local:deploy
 VITE_ENABLE_LOCAL=true pnpm dev
 ```
 
-The local token is an unrestricted test fixture. Local test ETH and mock ERC20 balances are separate; this does not validate Arc's shared balance semantics. Local test accounts must never hold real assets. The app expects an injected EIP-1193 wallet for manual signing; automated browser tests inject a fixture forwarding only to unlocked loopback accounts. The fixture is test code, not a production simulated-wallet UI.
+Open `http://127.0.0.1:5274/create`. Use a wallet configured to **local chain31338** for manual signing. Tests inject a local unlocked-account fixture only in test contexts; there is no simulated production wallet. Never put real funds in local test accounts. Local mock ERC20 and test ETH are separate assets; they do not validate Arc's shared balance semantics.
 
-## Browser checks against a production build
+`pnpm dev` without opt-in shows an unconfigured Arc Testnet release. No fabricated deployment is supplied. Canonical writes stay blocked until reviewed runtime integration is explicitly enabled after real tests. `.env.example` contains no secrets. The expected runtime hash is **keccak256**, mandatory. Runtime, chain, immutable USDC, token decimals/code, ABI version and exact deployment-code boundary are checked before writes; every write freshly simulates, estimates and checks funding.
 
-Keep the isolated local chain running and deploy its local fixtures first:
+## Transaction and evidence behavior
 
-```sh
-pnpm exec playwright install chromium
-VITE_ENABLE_LOCAL=true pnpm build
-pnpm test:local
-pnpm test:browser
-```
+A shared runner handles create/reset/approve/pay/cancel. It freezes exact calldata, chain, account, target and value zero; persists intent before the prompt; persists each returned hash immediately; and binds the result to that operation's record. A live context ref plus explicit wallet context is checked after asynchronous preparation. A failed current simulation, funding check, quote TTL or changed context cannot sign.
 
-Playwright starts a Vite production preview on `http://127.0.0.1:4173`; test wallet fixtures and private browser contexts are labeled local. Tests include create/new-context approval/payment/public receipt/refresh, cancellation, refusal, wrong chain, raw percentage edits, storage/RPC/log failures, attribution and history reconstruction. Results are written to `outputs/browser-results.json`. No real wallet is used. Stop the local chain when finished. `pnpm test:local` exercises actual viem HTTP preflight/reconciliation against the same loopback deployment with an additional loopback fault proxy.
+Approval is a separate step with its own estimate. It does not require a payment estimate without allowance. Missing future fee hints are visibly unknown and require acknowledgment. Reset requires an explicit manifest policy and separate confirmation; both approval and reset retain gross principal funding. Native/token balance views are never added on Arc. Local separate assets stay separate in review. Fees displayed at six decimals round upward; actual fee is gasUsed × effectiveGasPrice.
 
-## Arc and release preparation
+Hydration clears all cached receipt/business claims, even terminal forged labels. Live reads do not repeatedly demote verified records. Recovery runs at startup/focus/poll/manual retry using the original allowlisted chain and effective hash. Exact sender/target/calldata/value/nonce, receipt identity and operation-specific canonical events/state are checked. Missing hashes/bodies remain unknown; elapsed time and nonce advance never prove failure. No background, cross-device or cleared-storage recovery guarantee. A local retry guard can only be dismissed explicitly after checking wallet activity; that does not cancel or resend a transaction.
 
-```sh
-pnpm check:arc     # public reads only; writes dated JSON evidence
-pnpm test:arc      # explicit SKIPPED/BLOCKED until authorized canonical integration
-pnpm deploy:plan   # unsigned constructor/bytecode plan only; never broadcasts
-```
+Settlement proof requires a successful receipt's own RequestPaid and ordered RecipientPaid logs, exact payRequest call, zero native value and fresh canonical payer/terms. The actual payer may be another wallet/session even when this device's attempt fails. Paid with unavailable logs stays Paid, with unverified evidence and no fabricated explorer link.
 
-[Release plan](docs/release-plan.md) covers actual Arc token tests, traceable gas hints, review, allowlist configuration, explicit deployment/signature authorization and hosting. Arc writes remain blocked even if somebody manually fills a manifest: runtime review must precede a reviewed code change. No canonical reset behavior or self-transfer behavior is assumed from local mocks.
+## Release boundaries
 
-For static hosting serve `dist/`; `public/_redirects` and `vercel.json` provide SPA routing. Test `/create`, `/pay/:chainId/:contract/:id` and `/receipt/:chainId/:contract/:id` directly and after hard refresh on the intended HTTPS host. Local preview does not establish actual public HTTPS/CORS/deep-link behavior. Do not deploy local fixtures. Never put private RPC keys, wallet keys or credentials in `.env`/frontend code.
+Design v1.1 is copied unchanged to `docs/splitlink-design-v1.1.md`; protocol version remains 1.0.0. Real canonical Arc reset/self-transfer/shared balances/fees/restrictions remain unverified in this task. Studio quota, provenance acceptance, full event rules, actual HTTPS host/deep-link/CORS checks, external funds/signatures, mainnet release and submission remain separate gates. No external wallet signatures, chain writes, deployments, public hosting, pushes or submissions occurred.
 
-## Behavior and limitations
+`public/_redirects` and `vercel.json` prepare SPA fallback for `/create`, `/pay/...`, `/receipt/...`. Default release builds remove the local deployment manifest. Actual host acceptance is pending. A verified payment proves money movement, not delivery, identity or legal acceptance. Issuer restrictions may fail a transfer; consumed gas does not roll back. Unsolicited token transfers to SplitLink are unsupported, with no rescue mechanism.
 
-Principal uses six-decimal bigint integers; native fees use eighteen. Shares use integer bps from raw decimal strings. The last recipient receives the exact remainder. Add/delete does not rebalance other rows. All transfers, including payer-as-recipient, execute; gross approval/funding rules remain conservative. A cap is not actual gas spend. The app never adds Arc native and ERC20 balance views.
+## Final local evidence (October 26, 2026)
 
-A successful transaction receipt is separate from verified business completion. Current payer attribution uses canonical state and matching settlement evidence, never the current browser's assumption. Public requests/receipts work without a wallet when a deployment is configured. Missing logs show Paid with unresolved evidence.
+The fresh-copy validation under `evidence/clean-20261026/` passed 83 Solidity tests, 15 production-module TypeScript tests, 5 actual local-chain controller tests and 10 mounted Chromium browser tests, plus typecheck/format/production build. The current online audit returned zero advisories. Empty-source-tree installation initially hit registry TLS errors; a subsequent frozen-lockfile install passed the full supply-chain check without disabling it. Node/package/browser/compiler caches were reused; application node_modules/build artifacts were not copied into the fresh tree. Hosted CI execution and real canonical-token integration remain unverified.
 
-[Recovery limits](docs/recovery-limitations.md) explain unknown hashes, replacements, browser-close/clear-storage limits and RPC gaps. No automatic resubmission/next step, background process or cross-device recovery is promised. Unsolicited transfers to SplitLink are unsupported and cannot be rescued. Canonical issuer restrictions can fail payments; gas may still be consumed. Payment proves movement, not work delivery or identity.
+## Revision 2 — SFA-1 history concurrency
 
-No backend, database, escrow, administrator, fees, expiry, partial payments, refunds, subscriptions, cross-chain flow or relayer.
+This directory is the separate r2 repair candidate, copied from the verified 136-file fixed candidate SHA-256 `64f5afcab80f62f29c4159bec4cd9e332b11422db40c1fc968ffd14329e08565`. The fixed original is preserved. See `docs/SFA-1-r2.md` for the per-cursor FIFO and unified page scan queue, direct production interleaving regression and mounted overlap regression. Current r2 execution evidence and final source inventory are bound by the separate `outputs/studio-local-r2-development-result.json`. Earlier counts above describe the base candidate; r2 counts must be read from the new result/report. All work remains external post-export development with release/eligibility gates open.

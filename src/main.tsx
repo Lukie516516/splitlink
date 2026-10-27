@@ -1,15 +1,16 @@
-import React from "react";
+// Real Studio source, supplemented externally after export; no Studio telemetry or private console capture.
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
-import { loadManifests } from "./core/manifest";
-import "./style.css";
+import { initManifest } from "./lib/manifest";
+import "./index.css";
 const root = createRoot(document.getElementById("root")!);
-loadManifests()
+initManifest()
   .then(() =>
     root.render(
-      <React.StrictMode>
+      <StrictMode>
         <App />
-      </React.StrictMode>,
+      </StrictMode>,
     ),
   )
   .catch((e) =>

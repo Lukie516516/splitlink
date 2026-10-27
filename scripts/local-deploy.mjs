@@ -1,56 +1,64 @@
 import fs from "node:fs";
-import { JsonRpcProvider, ContractFactory, keccak256 } from "ethers";
-const rpc = "http://127.0.0.1:8545";
-const provider = new JsonRpcProvider(rpc);
-if ((await provider.getNetwork()).chainId !== 31337n)
-  throw Error("Refusing non-local chain.");
-const signer = await provider.getSigner(0);
-const artifact = (name) =>
-  JSON.parse(fs.readFileSync(`artifacts/contracts/${name}.sol/${name}.json`));
-const deploy = async (name) => {
-  const a = artifact(name);
-  return new ContractFactory(a.abi, a.bytecode, signer).deploy(
-    ...(name === "SplitLink" ? [await token.getAddress()] : []),
-  );
-};
-const token = await deploy("LocalMockUSDC");
-await token.waitForDeployment();
-for (let i = 0; i < 5; i++)
-  await (
-    await token.mint(
-      await (await provider.getSigner(i)).getAddress(),
-      100000000000n,
-    )
-  ).wait();
-const split = await deploy("SplitLink");
-await split.waitForDeployment();
-const receipt = await split.deploymentTransaction().wait();
-const manifest = {
-  chainId: 31337,
-  name: "Local EVM / Mock USDC",
+import { createPublicClient, createWalletClient, http, keccak256 } from "viem";
+const transport = http("http://127.0.0.1:9547");
+const c = createPublicClient({ transport }),
+  w = createWalletClient({ transport });
+if ((await c.getChainId()) !== 31338)
+  throw Error("Refusing non-local fixture chain.");
+const accounts = await w.getAddresses();
+const artifact = (n) =>
+  JSON.parse(fs.readFileSync(`artifacts/contracts/${n}.sol/${n}.json`));
+async function deploy(n, args = []) {
+  const a = artifact(n);
+  const hash = await w.deployContract({
+    account: accounts[0],
+    chain: null,
+    abi: a.abi,
+    bytecode: a.bytecode,
+    args,
+  });
+  const receipt = await c.waitForTransactionReceipt({ hash });
+  if (receipt.status !== "success" || !receipt.contractAddress)
+    throw Error("Local fixture deployment failed.");
+  return {
+    address: receipt.contractAddress,
+    block: receipt.blockNumber,
+    abi: a.abi,
+  };
+}
+const token = await deploy("LocalToken");
+for (const account of accounts.slice(0, 6)) {
+  const hash = await w.writeContract({
+    account: accounts[0],
+    chain: null,
+    address: token.address,
+    abi: token.abi,
+    functionName: "mint",
+    args: [account, 100000000000n],
+  });
+  await c.waitForTransactionReceipt({ hash });
+}
+const split = await deploy("SplitLink", [token.address]);
+const code = await c.getCode({ address: split.address });
+const m = {
+  chainId: 31338,
+  chainName: "Local EVM / Mock USDC",
   environment: "local-mock",
-  rpcUrl: rpc,
-  explorer: null,
-  usdcAddress: await token.getAddress(),
-  splitLinkAddress: await split.getAddress(),
-  deploymentBlock: receipt.blockNumber.toString(),
+  contractAddress: split.address,
+  usdcAddress: token.address,
+  deploymentBlock: split.block.toString(),
+  expectedBytecodeHash: keccak256(code),
+  rpcUrl: "http://127.0.0.1:9547",
+  explorerBase: "",
   contractVersion: "1.0.0",
-  bytecodeHash: keccak256(await provider.getCode(await split.getAddress())),
-  resetRequired: false,
+  isDeployed: true,
+  hasDeploymentBlock: true,
   sharedBalance: false,
-  writesEnabled: true,
-  appOrigin: "http://127.0.0.1:5173",
+  resetRequired: false,
+  runtimeVerified: true,
 };
 fs.mkdirSync("public", { recursive: true });
-fs.mkdirSync("outputs", { recursive: true });
-fs.writeFileSync(
-  "public/local-manifest.json",
-  JSON.stringify(manifest, null, 2),
-);
-fs.writeFileSync(
-  "outputs/local-deployment.json",
-  JSON.stringify({ environment: "LOCAL MOCK ONLY", manifest }, null, 2),
-);
+fs.writeFileSync("public/local-manifest.json", JSON.stringify(m, null, 2));
 console.log(
-  "LOCAL MOCK ONLY: deployed on isolated chain 31337. Manifest: public/local-manifest.json",
+  "LOCAL MOCK ONLY: fixture deployed on loopback chain31338; no Arc transactions.",
 );
