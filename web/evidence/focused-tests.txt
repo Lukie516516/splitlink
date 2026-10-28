@@ -1,13 +1,21 @@
-✔ only exact reviewed deployment enables supported operations, without full acceptance (0.485666ms)
-✔ expired and future quotes stop (0.067833ms)
-✔ gross principal, fee and reserve use one shared balance (0.062792ms)
-✔ storage read/write failure remains fail closed (0.110958ms)
-✔ switch rejection does not add a chain or request signatures (0.587417ms)
-ℹ tests 5
+✔ only exact reviewed deployment enables supported operations, without full acceptance (0.453917ms)
+✔ expired and future quotes stop (0.075958ms)
+✔ gross principal, fee and reserve use one shared balance (0.068834ms)
+✔ storage read/write failure remains fail closed (0.118042ms)
+✔ switch rejection does not add a chain or request signatures (0.420209ms)
+✔ background recovery refreshes inside shared lock and preserves another tab intent (1.215417ms)
+✔ returned transaction with different nonce cannot replace frozen intent nonce or become verified (0.533167ms)
+✔ mainnet default binds reviewed chain, deployment and runtime; old links remain testnet (0.516958ms)
+✔ finite project nonces and amount cannot be replenished by incoming funds (0.175666ms)
+✔ mainnet network setup uses chain5042, canonical RPC, no signing methods (0.457583ms)
+✔ wrong chain fails closed before deployment/business reads (0.199958ms)
+✔ missing prior nonce cannot advance finite project budget (0.293583ms)
+✔ prior canonical fees are counted; reverted, unrelated, and fee-overridden transactions stop (1.837917ms)
+ℹ tests 13
 ℹ suites 0
-ℹ pass 5
+ℹ pass 13
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 40.733166
+ℹ duration_ms 140.080667

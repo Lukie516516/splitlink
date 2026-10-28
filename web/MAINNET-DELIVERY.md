@@ -1,0 +1,9 @@
+# Mainnet web delivery
+
+This directory contains the independently reviewed mainnet browser candidate source aggregate7340dfd6c9e59d5050a0ce58b4cd2795d93598980f5c384379a24eaba0e1ebf4. Exact source/evidence manifest and focused independent PASS accompany the source. This update is source delivery, not a hosted deployment or mainnet payment receipt.
+
+The actual Arc Mainnet contract is0xAb0FD4065973d1E6043057D8E5DdAda9E5C16010 on chain5042. Deployment tx0xce853fe20ec7a0539a40ba10b74fc6b58b312a0716eb94a34f7d2f9dd69c5ec7 is canonical, runtime/token/version checked. App default is Mainnet; old Testnet links retain their separate chain identity. Wallet confirmations and fee review explicitly identify realUSDC.
+
+For funded project walletA, one finite0.010001USDC demo flow is permitted: nonce1create,nonce2exactapprove,nonce3pay with each gas cap0.01. Prior operation bodies and canonical receipts/fees are reconciled; missing/reverted/unrelated/advanced nonce stops. Incoming funds and cleared storage do not renew the allowance. Worst-case app-request budget including actualdeploy and fullgross0.07492395USDC, under project1. The app cannot prevent the human changing wallet fees or signing unrelated external transactions. Other wallets use their own funding and approvals.
+
+Install with the pinned pnpm lockfile, then typecheck/build. Focused checks: node checks/run.mjs. Public readonly identity check: node checks/run.mjs --public-readonly. Browser requires HTTPS/injected EVM wallet/WebLocks; no secret/helper signing service. Review limitations and genuine Studio partial-export/external-supplement disclosure remain applicable. Mainnet payment, public hosting, genuine video and submission receipt remain pending. Existing root application/CI is separate from this web directory and does not establish its browser QA.

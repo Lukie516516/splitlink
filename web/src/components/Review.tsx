@@ -15,7 +15,7 @@ export function Review({ op }: { op: ReturnTypeOfOperation }) {
   const args = d.args as readonly unknown[];
   return <section className="review" aria-label="交易复核">
     <h2>复核：{names[r.call.operation]}</h2>
-    <p>Arc Testnet · 测试 USDC · {remaining > 0 ? `报价还剩 ${remaining} 秒` : "报价已过期，请关闭后重新预览"}</p>
+    <p>{op.manifest.chainName} · {op.manifest.environment === "arc-mainnet" ? "真实 USDC · 消耗真实资金" : "测试 USDC"} · {remaining > 0 ? `报价还剩 ${remaining} 秒` : "报价已过期，请关闭后重新预览"}</p>
     <code>签名钱包：{r.account}</code><code>交易目标：{r.call.target}</code>
     {r.call.operation === "create" ? <><p>公开标题：{String(args[0])}</p><p>请求总额：{formatUsdc6(args[1] as bigint)} USDC（创建时不转移本金）</p>{(args[2] as readonly string[]).map((a,i)=><code key={a}>收款人 {i+1}：{a} · {Number((args[3] as readonly number[])[i])/100}%</code>)}</> : <p>请求编号：{r.call.requestId?.toString()} · 总额 {formatUsdc6(r.call.principal6)} USDC</p>}
     {approval && <><code>授权给：{String(args[0])}</code><p>设置总额度为 {formatUsdc6(args[1] as bigint)} USDC，不是增加额度；授权不等于付款。</p></>}
@@ -23,6 +23,7 @@ export function Review({ op }: { op: ReturnTypeOfOperation }) {
     <p>原生 value：0 · nonce：{r.quote.nonce} · gas 上限：{r.quote.gasLimit.toString()}</p>
     <p>本次最高 gas 预算：<strong>{formatFee18(r.quote.feeBudget18)} USDC</strong>（向上取整，实际费以收据为准）。{r.call.operation === "pay" ? "本金另计。" : ""}</p>
     <p>原生 gas 使用 18 位精度，USDC 合约使用 6 位，两者是同一余额，不能相加。</p>
+    {op.manifest.environment === "arc-mainnet" && r.account.toLowerCase() === "0x50df19631d9410ecee43850e21e46322114ee483" && <p>项目钱包仅允许本轮一次 0.010001 USDC 分账的固定 nonce 序列，前序实际收据和费用逐步核对；入账或清除记录不会增加次数。每笔 gas 硬上限 0.01 USDC，未知或失败时停止。</p>}
     <details><summary>查看准确 calldata</summary><code>{r.call.data}</code></details>
     <p>下一步打开钱包，由你本人确认。报价在请求钱包前核验；若在钱包弹窗停留过久，请拒绝并返回重新预览。不会自动重签或重发。</p>
     <button disabled={op.busy} onClick={op.close}>返回，不请求签名</button>

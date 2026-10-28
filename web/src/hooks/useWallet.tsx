@@ -8,7 +8,8 @@ import {
 } from "react";
 import type { Address, EIP1193Provider } from "viem";
 import { providerContext } from "@/lib/runner";
-import { ensureArcTestnet, walletError } from "@/lib/walletNetwork";
+import { ensureArcNetwork, walletError } from "@/lib/walletNetwork";
+import { getManifest, type NetworkManifest } from "@/lib/manifest";
 declare global {
   interface Window {
     ethereum?: EIP1193Provider;
@@ -18,10 +19,10 @@ const Context = createContext<{
   account?: Address;
   chainId?: number;
   generation: number;
-  connect: () => Promise<void>;
-  switchNetwork: () => Promise<void>;
+  connect: (m?: NetworkManifest) => Promise<void>;
+  switchNetwork: (m?: NetworkManifest) => Promise<void>;
   live: () => string;
-}>({ generation: 0, connect: async () => {}, switchNetwork: async () => {}, live: () => "" });
+}>({ generation: 0, connect: async (m = getManifest()) => {}, switchNetwork: async (m = getManifest()) => {}, live: () => "" });
 export function WalletProvider({ children }: { children: ReactNode }) {
   const [context, setContext] = useState<{
     account?: Address;
@@ -62,20 +63,20 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       value={{
         ...context,
         live: () => ref.current,
-        connect: async () => {
+        connect: async (m = getManifest()) => {
           if (!window.ethereum)
             throw Error(
               "未检测到浏览器钱包。请安装兼容 EVM 的钱包扩展，或在钱包浏览器中打开本站；公开查询无需连接。",
             );
           try {
             await window.ethereum.request({ method: "eth_requestAccounts" });
-            await ensureArcTestnet(window.ethereum);
+            await ensureArcNetwork(window.ethereum, m);
             await refresh();
           } catch (e) { await refresh(); throw Error(walletError(e)); }
         },
-        switchNetwork: async () => {
+        switchNetwork: async (m = getManifest()) => {
           if (!window.ethereum) throw Error("未检测到浏览器钱包，请先连接。");
-          try { await ensureArcTestnet(window.ethereum); await refresh(); }
+          try { await ensureArcNetwork(window.ethereum, m); await refresh(); }
           catch (e) { throw Error(walletError(e)); }
         },
       }}

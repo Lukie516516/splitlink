@@ -13,6 +13,7 @@ import { useOperation } from "@/hooks/useOperation";
 import { Review } from "./Review";
 import { MyRequests } from "./MyRequests";
 import { hasUnresolved, useJournal } from "./TransactionActivity";
+import { PROJECT_WALLET } from "@/lib/mainnetBudget";
 const blank = () => ({ id: crypto.randomUUID(), address: "", share: "" });
 export function Allocation({
   recipients,
@@ -84,11 +85,12 @@ export function CreatePage() {
     <>
       <h1>创建你的分账链接</h1>
       <p>先定金额，再定份额。每个人应收多少，清清楚楚。</p>
+      {m.environment === "arc-mainnet" && wallet.account?.toLowerCase() === PROJECT_WALLET && <p className="notice">项目钱包本轮仅开放一次总额 0.010001 USDC 的创建、准确授权和付款，按 nonce 1 / 2 / 3 依次确认；入账不会重置次数或预算。<button onClick={() => { edit(); setTitle("SplitLink mainnet demo"); setAmount("0.010001"); setRows([{id:crypto.randomUUID(),address:wallet.account!,share:"50"},{id:crypto.randomUUID(),address:"0xF76635258fF551Dc2224ee7434B5b88dF3c93497",share:"50"}]); }}>填入本轮分账信息</button></p>}
       <p>
         {m.chainName} ·{" "}
         {m.environment === "local-mock"
           ? "LOCAL MOCK — isolated test assets"
-          : "已审测试网部署 · 每笔操作均由本人钱包确认"}
+          : `${m.chainName} · ${m.environment === "arc-mainnet" ? "真实 USDC" : "测试 USDC"} · 每笔操作均由本人钱包确认`}
       </p>
       <div className="grid">
         <section className="panel">
@@ -195,7 +197,7 @@ export function CreatePage() {
             创建后条款不可修改，请核对完整地址和金额。最小单位余数归入最后一位收款人。
           </div>
           {!wallet.account && <button onClick={() => void wallet.connect().catch(e => setConnectError(e.message))}>连接钱包以创建</button>}
-          {wallet.account && wallet.chainId !== m.chainId && <button onClick={() => void wallet.switchNetwork().catch(e => setConnectError(e.message))}>切换至 Arc Testnet</button>}
+          {wallet.account && wallet.chainId !== m.chainId && <button onClick={() => void wallet.switchNetwork(m).catch(e => setConnectError(e.message))}>切换至 {m.chainName}</button>}
           {connectError && <p role="alert" className="notice">{connectError}</p>}
           <button
             disabled={
