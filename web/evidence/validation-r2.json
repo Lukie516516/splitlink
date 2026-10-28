@@ -1,0 +1,12 @@
+{
+  "typecheck": "passed",
+  "productionBuild": "passed",
+  "focusedSyntheticTests": 7,
+  "browserQA": "unavailable: disabled in Work settings",
+  "realWalletWrites": false,
+  "previousReviewerStatus": "failed-network-permission-revoked-before-formal-report",
+  "repairs": [
+    "origin-wide lock for all submission/recovery journal writes",
+    "immutable reviewed nonce; mismatch remains unknown"
+  ]
+}
