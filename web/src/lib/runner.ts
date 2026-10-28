@@ -1,3 +1,4 @@
+import { assertMainnetBudget, verifyProjectHistory } from "./mainnetBudget";
 // External continuation of Studio production modules: one controller for ALL five writes.
 import {
   decodeEventLog,
@@ -197,10 +198,10 @@ export async function prepareOperation(
 ) {
   if (!manifestIsReadyForWrites(m) || !operationAllowed(m, call.operation))
     throw Error(
-      "此操作尚未开放；仅已审测试网部署的创建、准确授权和付款可用。",
+      "此操作尚未开放；仅已审部署的创建、准确授权和付款可用。",
     );
   await verifiedClient(m, c);
-  parseIntent(m, call);
+  const decodedIntent = parseIntent(m, call);
   const block = await c.getBlockNumber({ cacheTime: 0 });
   if (call.requestId !== null) {
     const { request: r } = await readCanonical(
@@ -245,6 +246,8 @@ export async function prepareOperation(
     isChainSpecificClient: true,
   });
   if (!result.ok) throw Error(`${result.code}: ${result.message}`);
+  assertMainnetBudget(m, account, call.operation, call.principal6, result.quote.feeBudget18, result.quote.nonce, call.operation === "create" ? (decodedIntent.args as readonly unknown[])[1] as bigint : undefined);
+  await verifyProjectHistory(m, account, result.quote.nonce, c, block);
   const funding = checkFunding({
     operation: call.operation,
     principal6: call.principal6,
@@ -311,6 +314,7 @@ async function submitUnlocked(p: SubmitParams) {
     sharedBalance: m.sharedBalance,
   });
   if (!budget.ok) throw Error(budget.error);
+  assertMainnetBudget(m, account, call.operation, call.principal6, reviewed.feeBudget18, reviewed.nonce, call.operation === "create" ? (parseIntent(m,call).args as readonly unknown[])[1] as bigint : undefined);
   const ctx = await providerContext(provider);
   if (
     !p.contextValid() ||

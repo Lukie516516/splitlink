@@ -88,6 +88,7 @@ export function useOperation(
     }
   };
   return {
+    manifest: m,
     review,
     busy,
     message,

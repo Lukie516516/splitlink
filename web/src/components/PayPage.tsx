@@ -286,13 +286,13 @@ function RequestView({
             )}
           </div>
           {!wallet.account ? (
-            <button onClick={() => void wallet.connect().catch(e => alert(e.message))}>
+            <button onClick={() => void wallet.connect(m).catch(e => alert(e.message))}>
               连接钱包以付款
             </button>
           ) : wallet.chainId !== m.chainId ? (
             <p className="notice">
               请切换至 {m.chainName} 后继续。 公开查询仍可使用。
-              <button onClick={() => void wallet.switchNetwork().catch(e => alert(e.message))}>切换至 Arc Testnet</button>
+              <button onClick={() => void wallet.switchNetwork(m).catch(e => alert(e.message))}>切换至 {m.chainName}</button>
             </p>
           ) : !f ? (
             <p className="notice">

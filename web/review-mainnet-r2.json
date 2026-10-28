@@ -1,0 +1,319 @@
+{
+  "reviewId": "SPLITLINK-MAINNET-WEB-R2-REVIEW-20261028-7340dfd6",
+  "reviewedAt": "2026-10-28T07:47:48.787088+00:00",
+  "status": "PASS",
+  "scope": "Focused MW-1 fix for one finite project-wallet demonstration flow; reuse prior passed identity/UI/network/recovery scope, no publication or actual mainnet operation acceptance",
+  "sourceSha256": "7340dfd6c9e59d5050a0ce58b4cd2795d93598980f5c384379a24eaba0e1ebf4",
+  "sourceFiles": 43,
+  "sourceManifest": [
+    {
+      "path": ".env.production",
+      "sha256": "fb7e655f52161c592d2f80292d213e012659c7a722b638ae18488fb32772034f"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "cb56c64dd30e851fa2b65559b74c96969831c6626db6cbc292083e2bec8adbd3"
+    },
+    {
+      "path": "checks/focused.test.ts",
+      "sha256": "c71d48470304f783e3e25e5f7c3f6c3058f1e21ac83464d39d4c84e4de15f60b"
+    },
+    {
+      "path": "checks/mainnet.test.ts",
+      "sha256": "4ab2ab98ea67c8e4c1fea47d319b6f1da0228468de280948669fd49275a9dca6"
+    },
+    {
+      "path": "checks/public-readonly.ts",
+      "sha256": "f7e5174b3be7b4dbca9ad52125ebc129a7a40f16545e7f2298a973ade81882fd"
+    },
+    {
+      "path": "checks/run.mjs",
+      "sha256": "110bc631c5f0667505b419ae3f102b41b82da31cff976b594ba383ed9d713939"
+    },
+    {
+      "path": "index.html",
+      "sha256": "9dfeecd7fb7ba6c2fe453e006d6ef821e41afa82313b342f71515afe2bbccd6d"
+    },
+    {
+      "path": "package.json",
+      "sha256": "a11b03adccbee2a2abb8a2c58658f6280da2af151d9fc3dc310099e7cda85807"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "sha256": "3cf5b88331058a1f6b634bce5560df23dd1983e20177bb133a4111a48c29e4b6"
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "sha256": "bd2a0ba01fd9d1c0adcdc5705142f0e99d73d424ec90481a9e19b0df9653e0ff"
+    },
+    {
+      "path": "report.md",
+      "sha256": "f6355130f469998e2cef128fc19b87dd85d1a4ea4394d257eae2cba874045a5b"
+    },
+    {
+      "path": "src/App.tsx",
+      "sha256": "62101acb3e1904a13e4691cdef847eeb3b9ef060e472e88c156d64c071ca7cb0"
+    },
+    {
+      "path": "src/components/CreatePage.tsx",
+      "sha256": "0496aaa38b84e74fb9fd746fcca671be2f6d8bed8a10466b4c006c5b5cd2f25e"
+    },
+    {
+      "path": "src/components/HomePage.tsx",
+      "sha256": "c295e97feb3160b2b79c48c0c87dad2b6b64111fb38e20656d3b788208d26a7b"
+    },
+    {
+      "path": "src/components/Layout.tsx",
+      "sha256": "b84ea8b463d176ea81abe0b7360223b88c499a63ebe6cfee6e6beeb3d122939d"
+    },
+    {
+      "path": "src/components/MyRequests.tsx",
+      "sha256": "d4887143660399927cce967d975320415bb31944fc3c35c8f7a511c45c8478f2"
+    },
+    {
+      "path": "src/components/PayPage.tsx",
+      "sha256": "3d6375a8b23db42dcddfa7e8a31335178068d9bf89ae7541ee20609c85d13a84"
+    },
+    {
+      "path": "src/components/ReceiptPage.tsx",
+      "sha256": "bc0fda984227ea01e889644911b6c134d327014c3fe1a7ea9339ad09c05608dc"
+    },
+    {
+      "path": "src/components/Review.tsx",
+      "sha256": "003dc2bb1355cd30d27e420916866dcc3bcbbc317b9d0b8db76760347a4d7657"
+    },
+    {
+      "path": "src/components/TransactionActivity.tsx",
+      "sha256": "1817b5316de774bac377b727e65dd7927b208cad8c1454026ae8291f7ffd7e59"
+    },
+    {
+      "path": "src/components/reviewTypes.ts",
+      "sha256": "f2ce466de8b89bf3fa6b6e4e520c95a79469e570b0edc041ab54399c317c74cf"
+    },
+    {
+      "path": "src/components/ui.tsx",
+      "sha256": "fad905e7eae9886fa546d8d74cf0dad1202dc3116532fbd52a5cc9f26ff99cf6"
+    },
+    {
+      "path": "src/hooks/useOperation.ts",
+      "sha256": "b6dc56f1cfe7f48dceccdaeabe681d415eed710b3f75829d7d00aae8083495e9"
+    },
+    {
+      "path": "src/hooks/useWallet.tsx",
+      "sha256": "50057a00a38f098669a10e24d7bc1822c5dea3896eeed7a46b3b3bb50d2bb41e"
+    },
+    {
+      "path": "src/index.css",
+      "sha256": "4e0502e4ec4d506554d17409441ec3d2256cc6468fb664aba5d9c5c99e2c6efb"
+    },
+    {
+      "path": "src/lib/generatedAbi.ts",
+      "sha256": "ba27e0ebfa668788eac4453fffad7900c28027f83133a14b3b683f48ec15868e"
+    },
+    {
+      "path": "src/lib/history.ts",
+      "sha256": "7fb750075130e568f18cd9321bd99473236c19975f251c4d8bbec630542f1277"
+    },
+    {
+      "path": "src/lib/journal-testexports.ts",
+      "sha256": "45b1a83c83dbbc77c1b0320d3b8f7cbb48ce3318a014da35ea2e0db0347984a1"
+    },
+    {
+      "path": "src/lib/journal.ts",
+      "sha256": "bb7e4f5e7ed2d716228ba322dbed558c36c47e08b8b104dfb30964ab2e78814d"
+    },
+    {
+      "path": "src/lib/mainnetBudget.ts",
+      "sha256": "733f734c175f6249a3bf50b6fa73e8af9b3acc2e922cae103a0755f33d11c054"
+    },
+    {
+      "path": "src/lib/manifest.ts",
+      "sha256": "9ee370ed2e969133616ef10f6f94ed7add2b835f8359c3799ef8c4b74d550203"
+    },
+    {
+      "path": "src/lib/messages.ts",
+      "sha256": "959b8ddda1035533182a3ac9072566081b69bd657c23df9dfb51d931a3457321"
+    },
+    {
+      "path": "src/lib/preflight.ts",
+      "sha256": "3b5dc8c98517718be8dfc0a68fa785bce4bc29b59b2548bcae5ec2dc5af64ce0"
+    },
+    {
+      "path": "src/lib/runner.ts",
+      "sha256": "ec00d38133d6bcb7fc9fafb7b6886642a3fe64905fb8f1ad5e67fe2c4407a447"
+    },
+    {
+      "path": "src/lib/share.ts",
+      "sha256": "ca25cc137dc1330a1c094996efb7279fbe961563bcb654d471ea00914363b2a7"
+    },
+    {
+      "path": "src/lib/splitlink.ts",
+      "sha256": "147b0bde0868245bb10343973d3a4c5b935c95f4bf8bfd5fddf51619d7941bd0"
+    },
+    {
+      "path": "src/lib/walletNetwork.ts",
+      "sha256": "1d0239dad74362bd7d7c1ed96e1b41c7528396f0ef69f527468ac0d542971cb4"
+    },
+    {
+      "path": "src/main.tsx",
+      "sha256": "8695f26a184d701d8300fcceef15181f86f1d1ed61e6e292a127a318c816dfa3"
+    },
+    {
+      "path": "src/onchain-facts.ts",
+      "sha256": "7f2b44d34e0cf8ec6ccd1d5f06554bf58f2f875f23cdca3c409bfa330809cc4c"
+    },
+    {
+      "path": "src/onchain-money.ts",
+      "sha256": "f1a1e101ffba665a77b3942e0a3fa2d7beed35f8a46957d716c9872cc0f9b4f5"
+    },
+    {
+      "path": "src/vite-env.d.ts",
+      "sha256": "70ee79196b1ff59025d88e67228b57fe90d0a2268add1ddb4fc0f3242e543347"
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "6dd1f962bf858970fcc179155e5825a4efb9a76b40b7580e11e6f8566c7dbc0f"
+    },
+    {
+      "path": "vite.config.ts",
+      "sha256": "4250d99d5d09a9e77954b7d94f8f5a6eb81a0b33c18f0d687c672f8974907f9f"
+    }
+  ],
+  "candidateEvidenceHashesVerified": 8,
+  "candidateEvidenceManifest": [
+    {
+      "path": "evidence/base-source.json",
+      "sha256": "4554f57f8e4ffb6cbd57970429107006b58b0189b31e49456c7d8e8414d4f775"
+    },
+    {
+      "path": "evidence/build.txt",
+      "sha256": "559ad46ab1cab39fc46a2c0704a9c2e4859ced92dbf8b89a0fec123792f8f792"
+    },
+    {
+      "path": "evidence/focused-tests.txt",
+      "sha256": "e63d030e9baa45e8680960aace53954e08fb09362b34ae2aba7c896d1f9939b3"
+    },
+    {
+      "path": "evidence/mainnet-deployment.json",
+      "sha256": "1a00a7454fcb4f764c5365dc662610ae72f57086994b8740d4ed1c4fedc84b8b"
+    },
+    {
+      "path": "evidence/public-readonly-error.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/public-readonly.json",
+      "sha256": "142d4baa4974b55eee2abd73893c508980fee180fd3bb8b7d81a40d4cd4493c1"
+    },
+    {
+      "path": "evidence/typecheck.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/validation.json",
+      "sha256": "02ae56c09414a39d6f14f5f396386083986be7515989bc69e7fe1f9866db78d4"
+    }
+  ],
+  "candidateAndOriginalUnchangedBeforeAndAfter": true,
+  "changedSourcePaths": [
+    "checks/mainnet.test.ts",
+    "report.md",
+    "src/components/CreatePage.tsx",
+    "src/components/Review.tsx",
+    "src/lib/mainnetBudget.ts",
+    "src/lib/runner.ts"
+  ],
+  "findings": [],
+  "closedFindings": [
+    {
+      "id": "MW-1",
+      "status": "CLOSED",
+      "basis": "Removed initial-funding-minus-balance spending estimate. Fixed funded walletA on5042 can only submit nonce1create10001, nonce2approve10001, nonce3pay10001 with each maximumgas0.01 and value0. Public history requires successful exact prior nonce bodies and canonical receipts/max and actualfee caps, missing/unrelated/reverted/advanced state fails closed. Incoming balances/storage clearing cannot create new chain nonces or authorize higher gross."
+    }
+  ],
+  "budget": {
+    "confirmedDeployFeeUSDC": "0.03492295",
+    "maxThreeOperationGasUSDC": "0.03",
+    "fullGrossUSDC": "0.010001",
+    "finiteFlowWorstCaseUSDC": "0.07492395",
+    "projectCeilingUSDC": "1",
+    "policyScope": "A one fixed flow, not a renewable global balance-derived budget. Other wallets use their own confirmations, not projectfund authorization."
+  },
+  "tests": {
+    "frozenOfflineIgnoreScriptsInstall": "PASS",
+    "typescriptNoEmit": "PASS via build",
+    "viteProductionBuild": "PASS chunk advisory only",
+    "candidateFocusedSynthetic": {
+      "pass": 13,
+      "fail": 0
+    },
+    "independentSequenceGroups": [
+      {
+        "test": "normal finite create/approve/pay with both preceding canonical success bodies and fee proofs accepted",
+        "pass": true
+      },
+      {
+        "test": "prior approve maximum/actualfee override, reverted or unrelated target blocks pay stage",
+        "cases": 4,
+        "pass": true
+      },
+      {
+        "test": "MW1 incoming cannot authorize0.3pay or reused/advanced finite nonce; no balance/storage input exists in budget",
+        "cases": 5,
+        "pass": true
+      },
+      {
+        "test": "deployment + all three caps + full gross worstcase0.07492395 below1USDC",
+        "pass": true
+      }
+    ]
+  },
+  "priorPassedScopeReused": [
+    "Exact mainnet deployment identity/raw predeployment emptycode/initcode/runtime/canonicalreceipt; prior independent liveapplication verifier succeeded, no need to repeat",
+    "Two-chain route/account/network context and realUSDC notices, no invented mainnetRequest1",
+    "Original journal origin-wide WebLock, refresh underlock, frozen nonce, TTL and unknown guards unchanged",
+    "0.01 peroperation mainnet gas cap; runtimeVerifiedfalse fullacceptance boundary unchanged"
+  ],
+  "safety": {
+    "walletRequests": 0,
+    "signatures": 0,
+    "broadcasts": 0,
+    "secretHelperKeychainAccess": false,
+    "realJournalAccess": false,
+    "publicRpcCallsThisReview": 0,
+    "published": false,
+    "siteAccessRetried": false
+  },
+  "temporaryCopy": "/private/var/folders/wg/4rxk7b716bq4dtrns42blybw0000gn/T/mainnet-web-r2-independent-6dudmmyl",
+  "limitations": [
+    "Finite policy bounds the permitted app requests forA; it cannot prohibit user separately signing arbitrary transactions or changing fee parameters in an external wallet. Prior fee override is detected and blocks later app stages.",
+    "This is a single fixed-amount nonce flow; unrelated or failed nonce advance intentionally requires separate reconciliation/authorization.",
+    "Budget sequence tests use public synthetic RPCfixtures, not actual new mainnet create/approve/pay.",
+    "No fresh fullbrowser/multi-tab/extensionwallet QA; Workbrowser disabled remains disclosed.",
+    "Prior public mainnet verifier reused because manifest/network modules unchanged; no redundant liveonchain or fulloldsuite rerun.",
+    "Walletpopup beyondTTL cannot be revoked by app; reject stale walletpopup instruction remains. Browserdata deletion/externaldevice actions do not renew chainnonce policy but can remove local tracking.",
+    "No onlineaudit rerun, hosting/video/Studio/legalterms/mainnetpayment/fullruntimegate/submission acceptance."
+  ],
+  "independentEvidence": [
+    {
+      "path": "/Users/lukie/Documents/ChatGPT/hackthon/outputs/mainnet-web-r2-independent-evidence/independent-build.log",
+      "sha256": "5e32c931e7cc671ab9a84e74e9465dad651cdd884b6048a8720464405bf03a60"
+    },
+    {
+      "path": "/Users/lukie/Documents/ChatGPT/hackthon/outputs/mainnet-web-r2-independent-evidence/independent-focused.log",
+      "sha256": "02bcbf875a0581163db3716ef4b3fa5222d3d2844ebb51816d185e822fceb18b"
+    },
+    {
+      "path": "/Users/lukie/Documents/ChatGPT/hackthon/outputs/mainnet-web-r2-independent-evidence/independent-install.log",
+      "sha256": "402ec6e9a0e37e641122bba59afa599d14f8040ddcad494c5aaf6fc119522e1b"
+    },
+    {
+      "path": "/Users/lukie/Documents/ChatGPT/hackthon/outputs/mainnet-web-r2-independent-evidence/independent-sequence.json",
+      "sha256": "39035f4bc5f6bfa2df5be0097e83ae313b9d11693a1313773913754db22cd147"
+    },
+    {
+      "path": "/Users/lukie/Documents/ChatGPT/hackthon/outputs/mainnet-web-r2-independent-evidence/independent-sequence.ts",
+      "sha256": "d7565878de684c63db9e4e3249e79aa291d011072e8f3553c63d7ee4b8d559d1"
+    }
+  ]
+}

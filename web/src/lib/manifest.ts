@@ -5,6 +5,7 @@ import {
   http,
   isAddress,
   keccak256,
+  toHex,
   erc20Abi,
   type PublicClient,
   type Address,
@@ -28,7 +29,7 @@ export interface NetworkManifest {
   sharedBalance?: boolean;
   resetRequired?: boolean;
   runtimeVerified?: boolean;
-  reviewedDeployment?: "arc-testnet-20261027";
+  reviewedDeployment?: "arc-testnet-20261027" | "arc-mainnet-20261028";
 }
 const env = import.meta.env ?? {};
 const block = (raw: string) => (/^\d+$/.test(raw) ? BigInt(raw) : 0n);
@@ -50,7 +51,28 @@ const built: NetworkManifest = {
   runtimeVerified: false,
   reviewedDeployment: "arc-testnet-20261027",
 };
-export const manifests: NetworkManifest[] = [built];
+export const mainnet: NetworkManifest = {
+  chainId: 5042, chainName: "Arc Mainnet",
+  contractAddress: "0xAb0FD4065973d1E6043057D8E5DdAda9E5C16010",
+  deploymentBlock: 28269366n, usdcAddress: TOKEN,
+  explorerBase: "https://explorer.arc.io", contractVersion: "1.0.0",
+  isDeployed: true, hasDeploymentBlock: true,
+  expectedBytecodeHash: "0x36f70577a74e10b3f6036c0804f751545226f529d51a7425657c0696236d3e9b",
+  rpcUrl: "https://rpc.mainnet.arc.io", environment: "arc-mainnet",
+  sharedBalance: true, resetRequired: false, runtimeVerified: false,
+  reviewedDeployment: "arc-mainnet-20261028",
+};
+export const manifests: NetworkManifest[] = [mainnet, built];
+export function reviewedMainnetIdentity(m: NetworkManifest) {
+  return m.reviewedDeployment === "arc-mainnet-20261028" &&
+    m.environment === "arc-mainnet" && m.chainId === 5042 &&
+    m.rpcUrl === mainnet.rpcUrl && m.sharedBalance === true &&
+    m.contractAddress.toLowerCase() === mainnet.contractAddress.toLowerCase() &&
+    m.usdcAddress.toLowerCase() === TOKEN && m.deploymentBlock === 28269366n &&
+    m.contractVersion === "1.0.0" &&
+    m.expectedBytecodeHash?.toLowerCase() === mainnet.expectedBytecodeHash;
+}
+export const reviewedIdentity = (m: NetworkManifest) => reviewedTestnetIdentity(m) || reviewedMainnetIdentity(m);
 export async function initManifest() {
   if (
     env.VITE_ENABLE_LOCAL === "true" &&
@@ -106,7 +128,7 @@ export function manifestIsReadyForWrites(m: NetworkManifest) {
     m.isDeployed &&
     m.hasDeploymentBlock &&
     /^0x[\da-f]{64}$/i.test(m.expectedBytecodeHash ?? "") &&
-    (m.environment === "local-mock" || reviewedTestnetIdentity(m))
+    (m.environment === "local-mock" || reviewedIdentity(m))
   );
 }
 // Transaction capability is distinct from full scenario/competition acceptance.
@@ -148,8 +170,8 @@ export async function verifyManifestOnChain(
     verifiedAt: Date.now(),
   };
   try {
-    if (m.environment !== "local-mock" && !reviewedTestnetIdentity(m))
-      throw Error("未匹配已审 Arc Testnet 部署，保持只读。");
+    if (m.environment !== "local-mock" && !reviewedIdentity(m))
+      throw Error("未匹配已审 Arc 部署，保持只读。");
     if (
       !m.isDeployed ||
       !isAddress(m.contractAddress) ||
@@ -214,16 +236,17 @@ export async function verifyManifestOnChain(
         address: m.contractAddress as Address,
         blockNumber: m.deploymentBlock,
       }),
-      c.getCode({
+      m.environment !== "local-mock" ? c.request({ method: "eth_getCode", params: [m.contractAddress as Address, toHex(m.deploymentBlock - 1n)] }) : c.getCode({
         address: m.contractAddress as Address,
         blockNumber: m.deploymentBlock - 1n,
       }),
     ]);
-    if (m.environment === "arc-testnet") {
-      const hash = "0xf71ff9f99ab0c3d3e73d9c3741f79e00949cbb68340068996ba67570c4eab463" as const;
+    if (m.environment === "arc-testnet" || m.environment === "arc-mainnet") {
+      const hash = m.environment === "arc-mainnet" ? "0xce853fe20ec7a0539a40ba10b74fc6b58b312a0716eb94a34f7d2f9dd69c5ec7" as const : "0xf71ff9f99ab0c3d3e73d9c3741f79e00949cbb68340068996ba67570c4eab463" as const;
       const [tx, receipt] = await Promise.all([c.getTransaction({ hash }), c.getTransactionReceipt({ hash })]);
       const canonical = await c.getBlock({ blockNumber: m.deploymentBlock });
       if (tx.to !== null || tx.value !== 0n || tx.nonce !== 0 ||
+        keccak256(tx.input) !== "0x1bcd3c4b1c938e94a5294415197ecc8b718737b2716a539bc62fcb750c253393" ||
         tx.from.toLowerCase() !== "0x50df19631d9410ecee43850e21e46322114ee483" ||
         receipt.status !== "success" || receipt.blockNumber !== m.deploymentBlock ||
         receipt.contractAddress?.toLowerCase() !== m.contractAddress.toLowerCase() ||
@@ -243,7 +266,7 @@ export async function verifyManifestOnChain(
       keccak256(atDeployment).toLowerCase() !==
         m.expectedBytecodeHash!.toLowerCase() ||
       (beforeDeployment !== undefined && beforeDeployment !== "0x") ||
-      (m.environment === "arc-testnet" && beforeDeployment !== "0x")
+      (m.environment !== "local-mock" && beforeDeployment !== "0x")
     )
       throw Error(
         "Runtime, immutable USDC, token code/decimals, version or deployment block mismatch.",
@@ -273,8 +296,8 @@ export function parseRoute(
     BigInt(id) >= 2n ** 256n
   )
     throw Error("付款链接格式无效。");
-  if (![5042002, 31338].includes(Number(chain)))
-    throw Error("不支持此网络，仅提供 Arc Testnet。");
+  if (![5042, 5042002, 31338].includes(Number(chain)))
+    throw Error("不支持此网络。");
   const m = getSupportedManifest(Number(chain), address);
   if (!m) throw Error("此链接的合约未在本站受支持部署中。");
   return { m, id: BigInt(id) };

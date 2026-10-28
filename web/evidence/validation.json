@@ -1,10 +1,11 @@
 {
-  "typecheck": "passed",
-  "productionBuild": "passed",
-  "focusedTests": 5,
-  "focusedTestsPassed": 5,
-  "browserQA": "blocked: Local browser use is disabled in Work settings",
-  "actualWalletWrites": false,
-  "runtimeVerified": false,
-  "fullCanonicalAcceptance": false
+  "typecheck": "PASS",
+  "build": "PASS",
+  "syntheticChecks": 13,
+  "publicReadonly": "PASS",
+  "MW1": "finite nonrenewable nonce sequence plus canonical actual prior fees",
+  "maximumProjectSpendUSDC": "0.07492395",
+  "browserQA": "disabled-not-claimed",
+  "realWalletRequests": 0,
+  "realLedgerWrites": false
 }
