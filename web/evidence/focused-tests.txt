@@ -1,0 +1,13 @@
+✔ only exact reviewed deployment enables supported operations, without full acceptance (0.485666ms)
+✔ expired and future quotes stop (0.067833ms)
+✔ gross principal, fee and reserve use one shared balance (0.062792ms)
+✔ storage read/write failure remains fail closed (0.110958ms)
+✔ switch rejection does not add a chain or request signatures (0.587417ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40.733166

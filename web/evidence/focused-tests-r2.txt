@@ -1,0 +1,15 @@
+✔ only exact reviewed deployment enables supported operations, without full acceptance (0.4475ms)
+✔ expired and future quotes stop (0.06775ms)
+✔ gross principal, fee and reserve use one shared balance (0.066833ms)
+✔ storage read/write failure remains fail closed (0.1125ms)
+✔ switch rejection does not add a chain or request signatures (0.377958ms)
+✔ background recovery refreshes inside shared lock and preserves another tab intent (1.61975ms)
+✔ returned transaction with different nonce cannot replace frozen intent nonce or become verified (0.630125ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 53.120625

@@ -1,0 +1,10 @@
+{
+  "typecheck": "passed",
+  "productionBuild": "passed",
+  "focusedTests": 5,
+  "focusedTestsPassed": 5,
+  "browserQA": "blocked: Local browser use is disabled in Work settings",
+  "actualWalletWrites": false,
+  "runtimeVerified": false,
+  "fullCanonicalAcceptance": false
+}

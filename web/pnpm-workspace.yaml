@@ -1,0 +1,9 @@
+allowBuilds:
+  esbuild: true
+  keccak: true
+  '@foundry-rs/forge': true
+  bun: true
+  '@foundry-rs/anvil': true
+overrides:
+  tmp: 0.2.7
+  postcss: 8.5.31
