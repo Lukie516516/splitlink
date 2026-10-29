@@ -1,3 +1,11 @@
+# SplitLink — live release
+
+The current public wallet app source is in **[web/](web/README.md)**. Live app: https://splitlink.wiryfig6.chatgpt.site . Actual Arc Mainnet settlement of Request 1 is verified: [payment receipt](https://explorer.arc.io/tx/0x2d8daad1340b548fc101745ba159bfcf1fcead6c365ccf8499f02bbb18a829d1).
+
+The `web/RELEASE-MANIFEST-20261029.json` snapshot matches Site v9 runtime source, including RPC and signing-envelope fixes. The original root application and historical validation below are retained separately. Genuine video and personal hackathon submission remain pending. Studio export06 was partial and later work was completed externally; see the provenance disclosure in the web README.
+
+---
+
 # SplitLink — Studio source, completed externally after export
 
 This independent candidate continues the actual partial Studio export `studio-export-06-partial` with missing support files from `studio-snapshot-01`. The Studio account stopped at its daily quota during remediation round three. Subsequent modifications and tests are external local development, **not work executed in Studio**. The reviewed original root application is not copied into this candidate and stays unchanged. See `docs/external-base-provenance.json` and the top-level `outputs/studio-local-development-report.md`.

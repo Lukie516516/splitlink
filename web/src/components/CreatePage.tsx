@@ -226,8 +226,9 @@ export function CreatePage() {
               })
             }
           >
-            预览并复核创建请求
+            {op.busy ? "正在检查链上状态与费用…" : "预览并复核创建请求"}
           </button>
+          <Review op={op} />
           {wallet.account && wallet.chainId !== m.chainId && (
             <p className="error">请切换至 {m.chainName} 后继续。</p>
           )}
@@ -250,7 +251,6 @@ export function CreatePage() {
           <p>平台手续费为 0，网络费在签名前单独复核。</p>
         </aside>
       </div>
-      <Review op={op} />
       <MyRequests revision={revision} />
     </>
   );

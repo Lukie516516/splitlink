@@ -35,6 +35,6 @@ export function HomePage() {
      <section className="wallet-card"><span className="wallet-card-icon"><Wallet size={22}/></span><h2>你的钱包，你做主。</h2><p>这是 Arc 主网，交易消耗真实 USDC。查询公开请求无需连接；私钥与助记词始终由你保管。</p><div><ShieldCheck size={14}/>无托管 · 无平台手续费</div></section>
      <a className="contract-link" href={`${m.explorerBase}/tx/0xce853fe20ec7a0539a40ba10b74fc6b58b312a0716eb94a34f7d2f9dd69c5ec7`} target="_blank" rel="noreferrer"><span><Link2 size={16}/>查看真实主网部署</span><ExternalLink size={14}/></a>
    </aside></div>
-   <div className="preview-note"><span className="preview-note-dot"/>Arc Mainnet · 每笔 gas 硬上限 0.01 USDC · 创建、授权与付款分别确认，不自动发起下一笔。</div>
+   <div className="preview-note"><span className="preview-note-dot"/>Arc Mainnet · 每笔 gas 硬上限 0.02 USDC · 创建、授权与付款分别确认，不自动发起下一笔。</div>
  </div>;
 }

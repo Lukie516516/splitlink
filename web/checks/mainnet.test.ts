@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mainnet, getManifest, parseRoute, operationAllowed, reviewedMainnetIdentity, verifyManifestOnChain } from "../src/lib/manifest";
-import { assertMainnetBudget, verifyProjectHistory, PROJECT_WALLET, MAINNET_FEE_CAP_18 } from "../src/lib/mainnetBudget";
+import { assertMainnetBudget, verifyProjectHistory, PROJECT_WALLET, MAINNET_FEE_CAP_18, locateNonceTransaction } from "../src/lib/mainnetBudget";
 import { ensureArcNetwork } from "../src/lib/walletNetwork";
 test("mainnet default binds reviewed chain, deployment and runtime; old links remain testnet", () => {
   assert.equal(getManifest().chainId, 5042);
@@ -36,7 +36,7 @@ test("wrong chain fails closed before deployment/business reads",async()=> {
 });
 
 test("missing prior nonce cannot advance finite project budget",async()=>{
-  await assert.rejects(verifyProjectHistory(mainnet,PROJECT_WALLET as any,2,{getLogs:async()=>[]} as any,mainnet.deploymentBlock),/missing|nonce|\u7f3a\u5c11/);
+  await assert.rejects(verifyProjectHistory(mainnet,PROJECT_WALLET as any,2,{getTransaction:async()=>{throw Error("缺少前一步交易")}} as any,mainnet.deploymentBlock),/missing|nonce|\u7f3a\u5c11/);
 });
 
 import { encodeFunctionData } from "viem";
@@ -51,4 +51,21 @@ test("prior canonical fees are counted; reverted, unrelated, and fee-overridden 
  await assert.rejects(verifyProjectHistory(mainnet,PROJECT_WALLET as any,2,rpc({...tx,maxFeePerGas:100000000000n}),tx.blockNumber));
  await assert.rejects(verifyProjectHistory(mainnet,PROJECT_WALLET as any,2,rpc(tx,{...receipt,status:"reverted"}),tx.blockNumber));
  await assert.rejects(verifyProjectHistory(mainnet,PROJECT_WALLET as any,2,rpc({...tx,to:PROJECT_WALLET}),tx.blockNumber));
+});
+
+// Regression: the observed fresh buffered create quote must fit without dropping
+// fee buffers; over-cap quotes and the finite nonce policy still fail closed.
+test("observed mainnet create quote fits bounded project budget",()=>{
+  assertMainnetBudget(mainnet,PROJECT_WALLET,"create",0n,10241535600000000n,1,10001n);
+  assert.equal(MAINNET_FEE_CAP_18,20000000000000000n);
+  assert.throws(()=>assertMainnetBudget(mainnet,PROJECT_WALLET,"create",0n,MAINNET_FEE_CAP_18+1n,1,10001n),/0.02/);
+  assert.equal(34922950000000000n+3n*MAINNET_FEE_CAP_18+10001n*1000000000000n,104923950000000000n);
+});
+
+test("prior nonce locator is logarithmic and independent of log-range limits",async()=>{
+ const hash=("0x"+"c".repeat(64)) as any;let reads=0;
+ const c={getTransactionCount:async({blockNumber}:any)=>{reads++;return blockNumber>=900000n?3:2;},getBlock:async({blockNumber}:any)=>{assert.equal(blockNumber,900000n);return {transactions:[{from:PROJECT_WALLET,nonce:2,hash}]};}} as any;
+ assert.equal(await locateNonceTransaction(c,PROJECT_WALLET as any,2,1n,1000000n),hash);
+ assert.ok(reads<=22);
+ await assert.rejects(locateNonceTransaction({getTransactionCount:async()=>2} as any,PROJECT_WALLET as any,2,1n,1000000n),/缺少/);
 });

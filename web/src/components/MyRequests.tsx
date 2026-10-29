@@ -137,11 +137,11 @@ export function MyRequests({ revision }: { revision: number }) {
       if (document.visibilityState === "hidden") return;
       await scan();
     };
-    const timer = setInterval(tick, 15000);
-    window.addEventListener("focus", tick);
+    const timer = setInterval(tick, 60000);
+
     return () => {
       clearInterval(timer);
-      window.removeEventListener("focus", tick);
+
     };
   }, [key]);
   const op = useOperation(m, scan);

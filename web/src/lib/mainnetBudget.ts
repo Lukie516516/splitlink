@@ -1,8 +1,9 @@
-import { decodeFunctionData, erc20Abi, parseAbiItem, type PublicClient, type Address, type Hex } from "viem";
+import { decodeFunctionData, erc20Abi, type PublicClient, type Address, type Hex, formatUnits } from "viem";
 import type { NetworkManifest } from "./manifest";
 import { SPLITLINK_ABI } from "./splitlink";
 import type { OperationType } from "./preflight";
-export const MAINNET_FEE_CAP_18 = 10000000000000000n;
+import { journal } from "./journal";
+export const MAINNET_FEE_CAP_18 = 20000000000000000n;
 export const PROJECT_WALLET = "0x50df19631d9410ecee43850e21e46322114ee483";
 export const PROJECT_GROSS_6 = 10001n;
 const DEPLOY_FEE_18 = 34922950000000000n;
@@ -12,7 +13,7 @@ const funded=(m:NetworkManifest,a:string)=>m.environment==="arc-mainnet"&&equal(
 // cleared storage and later incoming funds. No balance delta resets this allowance.
 export function assertMainnetBudget(m:NetworkManifest,account:string,operation:OperationType,principal6:bigint,fee18:bigint,nonce:number,createAmount6?:bigint) {
   if(m.environment!=="arc-mainnet")return;
-  if(fee18<0n||fee18>MAINNET_FEE_CAP_18)throw Error("本次 gas 超过 0.01 USDC 硬上限。");
+  if(fee18<0n||fee18>MAINNET_FEE_CAP_18)throw Error(`本次最高 gas 预算 ${formatUnits(fee18, 18)} USDC，超过单笔 0.02 USDC 上限。尚未请求钱包签名或发送交易；请稍后重新预览。`);
   if(!funded(m,account))return;
   if(!Number.isInteger(nonce)||({1:"create",2:"approve",3:"pay"} as Record<number,string>)[nonce]!==operation)
     throw Error("项目钱包仅开放 nonce1 创建、nonce2 授权、nonce3 付款；其他活动或后续使用需另行核对预算。");
@@ -25,17 +26,14 @@ export async function verifyProjectHistory(m:NetworkManifest,account:Address,non
   if(!funded(m,account)||nonce===1)return;
   const required=nonce-1;
   if(required<1||required>2)throw Error("项目 nonce 超出已审有限预算序列。");
-  const hashes=new Set<Hex>();
-  const created=parseAbiItem("event RequestCreated(uint256 indexed requestId,address indexed creator,uint256 totalAmount)");
-  const approval=parseAbiItem("event Approval(address indexed owner,address indexed spender,uint256 value)");
-  for(let from=m.deploymentBlock;from<=head;from+=2000n){
-    const to=from+1999n<head?from+1999n:head;
-    const logs=await c.getLogs({address:m.contractAddress as Address,event:created,args:{creator:account},fromBlock:from,toBlock:to,strict:true});
-    for(const l of logs)if(l.transactionHash)hashes.add(l.transactionHash);
-    if(nonce===3){
-      const approvals=await c.getLogs({address:m.usdcAddress as Address,event:approval,args:{owner:account,spender:m.contractAddress as Address},fromBlock:from,toBlock:to,strict:true});
-      for(const l of approvals)if(l.transactionHash)hashes.add(l.transactionHash);
-    }
+  // Public hash is only a locator. The body, nonce, canonical receipt and fee
+  // are revalidated below on every preflight; no cached success grants writes.
+  const hashes=new Set<Hex>(["0xebaff31c93112144f540ba85ff3ec344db1de3c5fa761087c7f1eeb848441bbc"]);
+  if(required===2){
+    const local=journal().records.filter(r=>r.chainId===m.chainId&&equal(r.account,account)&&equal(r.contractAddress,m.contractAddress)&&r.nonce==="2");
+    const candidates=local.map(r=>r.effectiveTxHash??r.txHash).filter((h):h is Hex=>!!h&&/^0x[0-9a-fA-F]{64}$/.test(h));
+    if(candidates.length)for(const h of candidates)hashes.add(h);
+    else hashes.add(await locateNonceTransaction(c,account,2,m.deploymentBlock,head));
   }
   const seen=new Set<number>();let spent=DEPLOY_FEE_18;
   for(const hash of hashes){
@@ -60,4 +58,20 @@ export async function verifyProjectHistory(m:NetworkManifest,account:Address,non
   // Deployment + actual prior fees + remaining worst-case fees + full gross.
   const maxRemaining=spent+BigInt(4-nonce)*MAINNET_FEE_CAP_18+PROJECT_GROSS_6*1000000000000n;
   if(maxRemaining>1000000000000000000n)throw Error("累计实际花费与剩余预留超过项目 1 USDC 上限。");
+}
+
+// At most logarithmic historical nonce reads, instead of one getLogs request
+// per 2,000 blocks for every preview. A new browser can recover without storage.
+export async function locateNonceTransaction(c:PublicClient,account:Address,nonce:number,start:bigint,head:bigint):Promise<Hex>{
+  if(await c.getTransactionCount({address:account,blockNumber:head})<=nonce)throw Error("缺少前一步已上链交易，停止后续操作。");
+  let lo=start,hi=head;
+  while(lo<hi){
+    const mid=(lo+hi)/2n;
+    if(await c.getTransactionCount({address:account,blockNumber:mid})>nonce)hi=mid;
+    else lo=mid+1n;
+  }
+  const block=await c.getBlock({blockNumber:lo,includeTransactions:true});
+  const matches=block.transactions.filter(tx=>typeof tx!=="string"&&equal(tx.from,account)&&tx.nonce===nonce);
+  if(matches.length!==1||typeof matches[0]==="string")throw Error("无法唯一定位前一步交易，停止后续操作。");
+  return matches[0].hash;
 }

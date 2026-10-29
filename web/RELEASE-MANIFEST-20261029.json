@@ -1,0 +1,202 @@
+{
+  "version": "2026-10-29-site-v9",
+  "site": "https://splitlink.wiryfig6.chatgpt.site",
+  "siteSourceCommit": "960884a6e1306f0d42816b43e963e3eb53e0588c",
+  "sourceFileCount": 48,
+  "files": [
+    {
+      "path": ".env.production",
+      "gitBlobSha": "864100e464040fe03e921d89d8d4ed64601c4500"
+    },
+    {
+      "path": ".gitignore",
+      "gitBlobSha": "f90003c418fb5f216c0f0bfb29e9824fb7ed0eac"
+    },
+    {
+      "path": "checks/focused.test.ts",
+      "gitBlobSha": "ef03b8d30fc64575e7c7d9cb769d63e3cf899559"
+    },
+    {
+      "path": "checks/mainnet.test.ts",
+      "gitBlobSha": "566cad5763d712aefaba9e82b084bfe21177875e"
+    },
+    {
+      "path": "checks/preview-timing.ts",
+      "gitBlobSha": "4066de0c71368806b9610c15533c3c2058127601"
+    },
+    {
+      "path": "checks/public-readonly.ts",
+      "gitBlobSha": "bcbda496b4f193d455b99241aac4d40098dbb53e"
+    },
+    {
+      "path": "checks/rpc-throttle.test.ts",
+      "gitBlobSha": "16f9602b1d59447cfb1f273a8d13943b1be1f592"
+    },
+    {
+      "path": "checks/run.mjs",
+      "gitBlobSha": "23d8df13f527c434d71159f4eadef321746ead7b"
+    },
+    {
+      "path": "index.html",
+      "gitBlobSha": "0a0d74b512c85ee1de8fdf60ce3e59304076c9b9"
+    },
+    {
+      "path": "manifest.json",
+      "gitBlobSha": "b4722d5dba1dbebaf5c641967d813564c17d1be4"
+    },
+    {
+      "path": "package.json",
+      "gitBlobSha": "1b5a3b94b015c050a4de6f2555dcfcca6ef52cac"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "gitBlobSha": "2941caaf8df717728c894019b6ff7bd0c6a07d58"
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "gitBlobSha": "67ed22d26101ef80e1708556a9711ea65b125a9a"
+    },
+    {
+      "path": "public/_redirects",
+      "gitBlobSha": "7797f7c6a7356b0d451d11a49925df854c22e978"
+    },
+    {
+      "path": "public/local-manifest.json",
+      "gitBlobSha": "3409f8f6311444e7894f6f0c374a4783284a1420"
+    },
+    {
+      "path": "src/App.tsx",
+      "gitBlobSha": "1c4e3cf3dad8961001497187581b54cb81208293"
+    },
+    {
+      "path": "src/components/CreatePage.tsx",
+      "gitBlobSha": "90b03e3df8cdceeb1a41b4fc81306a3e9f57e077"
+    },
+    {
+      "path": "src/components/HomePage.tsx",
+      "gitBlobSha": "a87f9f1758f114c0cc6b8f24efa713f31f7542be"
+    },
+    {
+      "path": "src/components/Layout.tsx",
+      "gitBlobSha": "ce1ba37cb80d5587ef987652bf1fae668a03bf40"
+    },
+    {
+      "path": "src/components/MyRequests.tsx",
+      "gitBlobSha": "0ff608f9127942527dce2ed741ef04d1ebd538de"
+    },
+    {
+      "path": "src/components/PayPage.tsx",
+      "gitBlobSha": "59fb65385a4faad7ea25b3594ad7e51fc65cde21"
+    },
+    {
+      "path": "src/components/ReceiptPage.tsx",
+      "gitBlobSha": "8cc082c3a262c36282206d34b3e1ebcfc9d20479"
+    },
+    {
+      "path": "src/components/Review.tsx",
+      "gitBlobSha": "55b1ab3036ceeca1ba9420f19f241471bd51bdc4"
+    },
+    {
+      "path": "src/components/TransactionActivity.tsx",
+      "gitBlobSha": "bbc34f91da5b3914745728bc45397caf281bb03f"
+    },
+    {
+      "path": "src/components/reviewTypes.ts",
+      "gitBlobSha": "90531762071ec32d6837a0a8b236e02e8fb65d9f"
+    },
+    {
+      "path": "src/components/ui.tsx",
+      "gitBlobSha": "f1ac16b3fd595b48b08b040ad7e432209a9a371e"
+    },
+    {
+      "path": "src/hooks/useOperation.ts",
+      "gitBlobSha": "d9882ee10ef9713a182cff9d439cb90a9d0347bc"
+    },
+    {
+      "path": "src/hooks/useWallet.tsx",
+      "gitBlobSha": "7669e696b350b69dc8bb1d9d42f69cbfcfa2096b"
+    },
+    {
+      "path": "src/index.css",
+      "gitBlobSha": "61e2e56588b7d57e0d0237c3d1eddcbeb7d3c273"
+    },
+    {
+      "path": "src/lib/generatedAbi.ts",
+      "gitBlobSha": "c0a14db1871ccd059c96eb6382757fc452c76b12"
+    },
+    {
+      "path": "src/lib/history.ts",
+      "gitBlobSha": "a5bc6ff92d84b98cbeeb3b7b8588c35f7c9d36a9"
+    },
+    {
+      "path": "src/lib/journal-testexports.ts",
+      "gitBlobSha": "58ab5f7fb3d30224f9ced498d8dd6b46b8a7fe38"
+    },
+    {
+      "path": "src/lib/journal.ts",
+      "gitBlobSha": "67729658dcb94f618f8e73e36a90af648cdaaffd"
+    },
+    {
+      "path": "src/lib/mainnetBudget.ts",
+      "gitBlobSha": "2c3c744366f9ead4f9d4ca4176271e50312abfe6"
+    },
+    {
+      "path": "src/lib/manifest.ts",
+      "gitBlobSha": "c271aac45c19cdabf2ab5fe0c6367e29018e3093"
+    },
+    {
+      "path": "src/lib/messages.ts",
+      "gitBlobSha": "b52341824ce4c833478374b698a15c68a9f9cfa9"
+    },
+    {
+      "path": "src/lib/preflight.ts",
+      "gitBlobSha": "a8c49c21c285a0b618231414c8046841170bbd9c"
+    },
+    {
+      "path": "src/lib/rpcThrottle.ts",
+      "gitBlobSha": "61b793136d308d683f024b61cb19f68a7979d9e1"
+    },
+    {
+      "path": "src/lib/runner.ts",
+      "gitBlobSha": "be785b0f18dc5c9285148695070a4ad2a05c4bc6"
+    },
+    {
+      "path": "src/lib/share.ts",
+      "gitBlobSha": "0c48e7cc4da3577dc2c463b70756afa7b0489287"
+    },
+    {
+      "path": "src/lib/splitlink.ts",
+      "gitBlobSha": "37346d00be3b0b07ad4d30a50835245e57cd7f46"
+    },
+    {
+      "path": "src/lib/walletNetwork.ts",
+      "gitBlobSha": "aaa6e5cc38dc541a48d3aaf39cd293427a453337"
+    },
+    {
+      "path": "src/main.tsx",
+      "gitBlobSha": "21154c4b4b4c9fd1ba27983998cb0e67c66a5208"
+    },
+    {
+      "path": "src/onchain-facts.ts",
+      "gitBlobSha": "c4cdeecfc553c2e493a5989ec7ef68c30f59b050"
+    },
+    {
+      "path": "src/onchain-money.ts",
+      "gitBlobSha": "32e705784800a6a8176f1eef19641b391db9fa7a"
+    },
+    {
+      "path": "src/vite-env.d.ts",
+      "gitBlobSha": "b2b03b5b1e20c49a1e5942b80bf6fa71071b6cb7"
+    },
+    {
+      "path": "tsconfig.json",
+      "gitBlobSha": "dac03f41a85d1219872e23a857a48952d8cdaa38"
+    },
+    {
+      "path": "vite.config.ts",
+      "gitBlobSha": "2de96c51d5d226c4e279260286db3b9e4e9ef25c"
+    }
+  ],
+  "historicalManifest": "manifest.json remains the original reviewed candidate snapshot; use this manifest for current source equality",
+  "validation": "Existing typecheck/build/16 focused checks passed; no new chain writes for synchronization"
+}

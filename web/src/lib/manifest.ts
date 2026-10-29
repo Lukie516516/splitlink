@@ -1,3 +1,4 @@
+import { throttledRpcFetch } from "./rpcThrottle";
 // Studio export continuation: mandatory reviewed runtime and canonical identity.
 import {
   createPublicClient,
@@ -120,7 +121,7 @@ export function publicClientFor(m: NetworkManifest) {
   });
   return createPublicClient({
     chain,
-    transport: http(m.rpcUrl, { timeout: 8000, retryCount: 1 }),
+    transport: http(m.rpcUrl, { batch: { batchSize: 20, wait: 5 }, timeout: 15000, retryCount: 0, fetchFn: throttledRpcFetch }),
   });
 }
 export function manifestIsReadyForWrites(m: NetworkManifest) {
@@ -194,7 +195,7 @@ export async function verifyManifestOnChain(
       throw Error("Local fixture identity mismatch.");
     result.chainIdMatch = (await c.getChainId()) === m.chainId;
     if (!result.chainIdMatch) throw Error("RPC chain ID mismatch.");
-    const [code, token, decimals, tokenCode, head, version] = await Promise.all(
+    const [code, token, decimals, tokenCode, head, version, atDeployment, beforeDeployment, deployment] = await Promise.all(
       [
         c.getCode({ address: m.contractAddress as Address }),
         c.readContract({
@@ -222,6 +223,13 @@ export async function verifyManifestOnChain(
           ] as const,
           functionName: "CONTRACT_VERSION",
         }),
+        c.getCode({ address: m.contractAddress as Address, blockNumber: m.deploymentBlock }),
+        m.environment !== "local-mock" ? c.request({ method: "eth_getCode", params: [m.contractAddress as Address, toHex(m.deploymentBlock - 1n)] }) : c.getCode({ address: m.contractAddress as Address, blockNumber: m.deploymentBlock - 1n }),
+        (async () => {
+          if (m.environment !== "arc-testnet" && m.environment !== "arc-mainnet") return null;
+          const hash = m.environment === "arc-mainnet" ? "0xce853fe20ec7a0539a40ba10b74fc6b58b312a0716eb94a34f7d2f9dd69c5ec7" as const : "0xf71ff9f99ab0c3d3e73d9c3741f79e00949cbb68340068996ba67570c4eab463" as const;
+          return Promise.all([c.getTransaction({ hash }), c.getTransactionReceipt({ hash }), c.getBlock({ blockNumber: m.deploymentBlock })]);
+        })(),
       ],
     );
     result.bytecodeNonEmpty = !!code && code !== "0x";
@@ -231,20 +239,8 @@ export async function verifyManifestOnChain(
     result.usdcDecimalsCorrect = decimals === 6;
     result.immutableTokenMatch =
       token.toLowerCase() === m.usdcAddress.toLowerCase();
-    const [atDeployment, beforeDeployment] = await Promise.all([
-      c.getCode({
-        address: m.contractAddress as Address,
-        blockNumber: m.deploymentBlock,
-      }),
-      m.environment !== "local-mock" ? c.request({ method: "eth_getCode", params: [m.contractAddress as Address, toHex(m.deploymentBlock - 1n)] }) : c.getCode({
-        address: m.contractAddress as Address,
-        blockNumber: m.deploymentBlock - 1n,
-      }),
-    ]);
-    if (m.environment === "arc-testnet" || m.environment === "arc-mainnet") {
-      const hash = m.environment === "arc-mainnet" ? "0xce853fe20ec7a0539a40ba10b74fc6b58b312a0716eb94a34f7d2f9dd69c5ec7" as const : "0xf71ff9f99ab0c3d3e73d9c3741f79e00949cbb68340068996ba67570c4eab463" as const;
-      const [tx, receipt] = await Promise.all([c.getTransaction({ hash }), c.getTransactionReceipt({ hash })]);
-      const canonical = await c.getBlock({ blockNumber: m.deploymentBlock });
+    if (deployment) {
+      const [tx, receipt, canonical] = deployment;
       if (tx.to !== null || tx.value !== 0n || tx.nonce !== 0 ||
         keccak256(tx.input) !== "0x1bcd3c4b1c938e94a5294415197ecc8b718737b2716a539bc62fcb750c253393" ||
         tx.from.toLowerCase() !== "0x50df19631d9410ecee43850e21e46322114ee483" ||

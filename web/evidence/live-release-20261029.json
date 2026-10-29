@@ -1,0 +1,100 @@
+{
+  "site": "https://splitlink.wiryfig6.chatgpt.site",
+  "siteVersion": 9,
+  "siteSourceCommit": "960884a6e1306f0d42816b43e963e3eb53e0588c",
+  "chainId": 5042,
+  "contract": "0xAb0FD4065973d1E6043057D8E5DdAda9E5C16010",
+  "deploymentTx": "0xce853fe20ec7a0539a40ba10b74fc6b58b312a0716eb94a34f7d2f9dd69c5ec7",
+  "createTx": "0xebaff31c93112144f540ba85ff3ec344db1de3c5fa761087c7f1eeb848441bbc",
+  "approveTx": "0xdb63c4fa1c2307bd22a85b2247a2c6b83f4a800a7dc12d19abe92f0499924ddf",
+  "paymentTx": "0x2d8daad1340b548fc101745ba159bfcf1fcead6c365ccf8499f02bbb18a829d1",
+  "block": "28462860",
+  "blockHash": "0x71bf7a57d558c5bf25889f5912906fe167360d1b85cc9f7fd2b317068911b90d",
+  "receiptStatus": "success",
+  "requestId": "1",
+  "status": "Paid",
+  "payer": "0x50df19631d9410ECee43850E21E46322114ee483",
+  "paidAt": "1793270158",
+  "totalAmount6": "10001",
+  "recipients": [
+    "0x50df19631d9410ECee43850E21E46322114ee483",
+    "0xF76635258fF551Dc2224ee7434B5b88dF3c93497"
+  ],
+  "allocations6": [
+    "5000",
+    "5001"
+  ],
+  "allowanceAt": "0",
+  "allowanceLatest": "0",
+  "actualPaymentFee18": "3435728609912500",
+  "orderedEvents": [
+    {
+      "eventName": "RecipientPaid",
+      "args": {
+        "requestId": "1",
+        "recipient": "0x50df19631d9410ECee43850E21E46322114ee483",
+        "amount": "5000"
+      }
+    },
+    {
+      "eventName": "RecipientPaid",
+      "args": {
+        "requestId": "1",
+        "recipient": "0xF76635258fF551Dc2224ee7434B5b88dF3c93497",
+        "amount": "5001"
+      }
+    },
+    {
+      "eventName": "RequestPaid",
+      "args": {
+        "requestId": "1",
+        "payer": "0x50df19631d9410ECee43850E21E46322114ee483",
+        "totalAmount": "10001"
+      }
+    }
+  ],
+  "tokenTransfers": [
+    {
+      "eventName": "Transfer",
+      "args": {
+        "from": "0x50df19631d9410ECee43850E21E46322114ee483",
+        "to": "0x50df19631d9410ECee43850E21E46322114ee483",
+        "value": "5000"
+      }
+    },
+    {
+      "eventName": "Transfer",
+      "args": {
+        "from": "0x50df19631d9410ECee43850E21E46322114ee483",
+        "to": "0xF76635258fF551Dc2224ee7434B5b88dF3c93497",
+        "value": "5001"
+      }
+    }
+  ],
+  "canonicalRuntimeMatched": true,
+  "wholeBlockBalanceAttribution": "Not claimed; principal movement proven by exact receipt Transfer events",
+  "timing": {
+    "mode": "PUBLIC_READONLY_APPROVE_PREVIEW_TIMING",
+    "at": "2026-10-29T08:42:50.161Z",
+    "durationMs": 5808,
+    "httpRequests": 10,
+    "rpcMethods": 29,
+    "nonce": 2,
+    "feeBudget18": "2348130000000000",
+    "quoteRemainingMs": 26441,
+    "signed": false,
+    "broadcast": false,
+    "browserObservation": {
+      "previewVisibleWithinMs": 12369,
+      "lastPriorObservationMs": 6916,
+      "method": "Native Edge visible UI observations; upper bound includes tool round-trip time",
+      "screenshot": "outputs/approve-preview-batched-browser.png",
+      "signatureRequested": false,
+      "quoteExpiredWithoutSigning": true
+    }
+  },
+  "video": "pending",
+  "submission": "pending",
+  "provenance": "Partial Studio export06 followed by external supplements; organizer eligibility not established",
+  "newSignatureOrBroadcastForSync": false
+}

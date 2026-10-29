@@ -1,0 +1,17 @@
+{
+  "chainId": 31338,
+  "chainName": "Local EVM / Mock USDC",
+  "environment": "local-mock",
+  "contractAddress": "0xa513e6e4b8f2a923d98304ec87f64353c4d5c853",
+  "usdcAddress": "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+  "deploymentBlock": "8",
+  "expectedBytecodeHash": "0x03234596d76d5c334a5434a87c60be527d050e005b06ebf24395649cce4b30ce",
+  "rpcUrl": "http://127.0.0.1:9547",
+  "explorerBase": "",
+  "contractVersion": "1.0.0",
+  "isDeployed": true,
+  "hasDeploymentBlock": true,
+  "sharedBalance": false,
+  "resetRequired": false,
+  "runtimeVerified": true
+}

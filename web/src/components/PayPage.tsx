@@ -1,3 +1,4 @@
+import { userMessage } from "@/lib/messages";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -76,8 +77,10 @@ function RequestView({
     context = useRef("");
   const key = `${wallet.account}/${wallet.chainId}/${wallet.generation}`;
   context.current = key;
+  const reading = useRef(false), nextReadAt = useRef(0), preparing = useRef(false);
   async function refresh() {
-    if (key !== context.current) return;
+    if (key !== context.current || reading.current || Date.now() < nextReadAt.current) return;
+    reading.current = true;
     const gen = ++generation.current;
     try {
       const result = await readCanonical(m, id, minimumBlock.current);
@@ -111,17 +114,19 @@ function RequestView({
         }
       }
     } catch (e) {
+      nextReadAt.current = Date.now() + (/rate limit|defined limit|429/i.test(String(e)) ? 60000 : 10000);
       if (gen === generation.current) {
         setCanonical(null);
         setLoadError(
           /RequestNotFound/.test(String(e))
             ? "未找到请求。"
-            : `链上读取或身份校验失败： ${(e as Error).message}`,
+            : userMessage(e),
         );
       }
-    }
+    } finally { reading.current = false; }
   }
   useEffect(() => {
+    nextReadAt.current = 0;
     setCanonical(null);
     setEvidence(null);
     setFunds(null);
@@ -135,7 +140,7 @@ function RequestView({
   useEffect(() => {
     let running = false;
     const tick = async () => {
-      if (running || document.visibilityState === "hidden") return;
+      if (running || preparing.current || document.visibilityState === "hidden") return;
       running = true;
       try {
         await refresh();
@@ -143,14 +148,15 @@ function RequestView({
         running = false;
       }
     };
-    const timer = setInterval(tick, 5000);
-    window.addEventListener("focus", tick);
+    const timer = setInterval(tick, 30000);
+
     return () => {
       clearInterval(timer);
-      window.removeEventListener("focus", tick);
+
     };
   }, [key]);
   const op = useOperation(m, refresh);
+  preparing.current = op.busy;
   if (loadError)
     return (
       <section className="panel">
@@ -345,7 +351,7 @@ function RequestView({
                   )
                 }
               >
-                {m.resetRequired && f.allowance > 0n
+                {op.busy ? "正在核验授权与费用…" : m.resetRequired && f.allowance > 0n
                   ? "预览授权重置"
                   : "预览准确授权"}
               </button>
@@ -357,7 +363,7 @@ function RequestView({
                 void op.prepare(requestIntent(m, "pay", id, r.totalAmount))
               }
             >
-              预览本次付款
+              {op.busy ? "正在核验付款与费用…" : "预览本次付款"}
             </button>
           )}
           {f && (

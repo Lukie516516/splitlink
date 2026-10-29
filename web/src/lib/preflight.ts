@@ -29,6 +29,7 @@ export interface PreflightQuote {
   estimatedGas: bigint;
   gasLimit: bigint;
   maxFeePerGas18: bigint;
+  requiredMaxFeePerGas18: bigint;
   priorityFee18: bigint;
   feeBudget18: bigint;
   simulationOk: boolean;
@@ -49,6 +50,13 @@ export const makeContextKey = (
 ) => `${chain}:${account.toLowerCase()}:${target.toLowerCase()}:${op}`;
 export const isQuoteStale = (q: PreflightQuote) =>
   Date.now() < q.quotedAt || Date.now() - q.quotedAt >= QUOTE_TTL_MS;
+// Compare live requirements with the exact envelope the user reviewed. Adding
+// the safety margin twice would reject harmless movement inside that envelope.
+export function freshQuoteFitsReview(reviewed: PreflightQuote, fresh: PreflightQuote) {
+  return fresh.nonce === reviewed.nonce && fresh.estimatedGas <= reviewed.gasLimit &&
+    fresh.requiredMaxFeePerGas18 <= reviewed.maxFeePerGas18 &&
+    fresh.priorityFee18 <= reviewed.priorityFee18;
+}
 export function verifySigningContext(
   q: PreflightQuote,
   c: {
@@ -102,39 +110,28 @@ export async function runPreflight(p: {
     const block = await p.publicClient.getBlock({ blockTag: "latest" });
     if (block.baseFeePerGas == null || Math.abs(Date.now() / 1000 - Number(block.timestamp)) > 60)
       throw Error("区块或费用数据已过期，请重新读取。");
-    const [nonce, pending] = await Promise.all([
-      p.publicClient.getTransactionCount({ address: p.account, blockTag: "latest" }),
-      p.publicClient.getTransactionCount({ address: p.account, blockTag: "pending" }),
-    ]);
-    if (nonce !== pending) throw Error("钱包仍有待处理交易，请先等待或恢复状态。");
-    const fees = await p.publicClient.estimateFeesPerGas();
-    if (fees.maxFeePerGas == null) throw Error("Fee estimate unavailable.");
     const abi =
       p.operation === "approve" || p.operation === "approveReset"
         ? erc20Abi
         : SPLITLINK_ABI;
     const decoded = decodeFunctionData({ abi, data: p.callData });
-    const simulation = await p.publicClient.simulateContract({
-      address: p.contractAddress,
-      abi: abi as any,
-      functionName: decoded.functionName,
-      args: decoded.args,
-      account: p.account,
-      value: 0n,
-      blockNumber: block.number,
-    });
-    if (
-      (p.operation === "approve" || p.operation === "approveReset") &&
-      simulation.result === false
-    )
+    const [nonce, pending, fees, simulation, gas] = await Promise.all([
+      p.publicClient.getTransactionCount({ address: p.account, blockTag: "latest" }),
+      p.publicClient.getTransactionCount({ address: p.account, blockTag: "pending" }),
+      p.publicClient.estimateFeesPerGas(),
+      p.publicClient.simulateContract({
+        address: p.contractAddress, abi: abi as any,
+        functionName: decoded.functionName, args: decoded.args,
+        account: p.account, value: 0n, blockNumber: block.number,
+      }),
+      p.publicClient.estimateGas({ account: p.account, to: p.contractAddress, data: p.callData, value: 0n }),
+    ]);
+    if (nonce !== pending) throw Error("钱包仍有待处理交易，请先等待或恢复状态。");
+    if (fees.maxFeePerGas == null) throw Error("Fee estimate unavailable.");
+    if ((p.operation === "approve" || p.operation === "approveReset") && simulation.result === false)
       throw Error("execution reverted: approval simulation returned false.");
-    const gas = await p.publicClient.estimateGas({
-      account: p.account,
-      to: p.contractAddress,
-      data: p.callData,
-      value: 0n,
-    });
     const priority = fees.maxPriorityFeePerGas ?? 0n;
+    const requiredMaxFeePerGas18 = fees.maxFeePerGas > block.baseFeePerGas + priority ? fees.maxFeePerGas : block.baseFeePerGas + priority;
     const cap = [
       MIN_MAX_FEE_PER_GAS_18,
       ceilDiv(fees.maxFeePerGas, FEE_CAP_MARGIN_BPS, 10000n),
@@ -159,6 +156,7 @@ export async function runPreflight(p: {
         estimatedGas: gas,
         gasLimit: limit,
         maxFeePerGas18: cap,
+        requiredMaxFeePerGas18,
         priorityFee18: priority,
         feeBudget18: limit * cap,
         simulationOk: true,

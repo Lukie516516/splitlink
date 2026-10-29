@@ -26,6 +26,7 @@ export function useOperation(
     key: string;
   } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [stage, setStage] = useState<"idle" | "rechecking" | "wallet" | "confirming">("idle");
   const [message, setMessage] = useState("");
   useEffect(() => {
     setReview(null);
@@ -39,6 +40,7 @@ export function useOperation(
       account = wallet.account,
       epoch = ++version.current;
     setBusy(true);
+    setStage("rechecking");
     setMessage("");
     setReview(null);
     try {
@@ -51,6 +53,7 @@ export function useOperation(
       await onComplete();
     } finally {
       setBusy(false);
+      setStage("idle");
     }
   };
   const sign = async () => {
@@ -58,6 +61,7 @@ export function useOperation(
     const r = review,
       epoch = version.current;
     setBusy(true);
+    setStage("rechecking");
     setMessage("");
     try {
       const record = await submitOperation({
@@ -66,6 +70,7 @@ export function useOperation(
         call: r.call,
         reviewed: r.quote,
         provider: window.ethereum,
+        onStage: setStage,
         contextValid: () =>
           active.current &&
           epoch === version.current &&
@@ -84,6 +89,7 @@ export function useOperation(
     } finally {
       setReview(null);
       setBusy(false);
+      setStage("idle");
       await onComplete();
     }
   };
@@ -91,6 +97,7 @@ export function useOperation(
     manifest: m,
     review,
     busy,
+    stage,
     message,
     prepare,
     sign,

@@ -24,6 +24,7 @@ import {
 } from "./manifest";
 import {
   runPreflight,
+  freshQuoteFitsReview,
   checkFunding,
   verifySigningContext,
   errorMessage,
@@ -103,6 +104,10 @@ export async function readCanonical(
   exactBlock?: bigint,
 ) {
   await verifiedClient(m, c);
+  return readVerifiedRequest(m, id, minBlock, c, exactBlock);
+}
+// Internal to an already verified operation; public callers always verify above.
+async function readVerifiedRequest(m: NetworkManifest, id: bigint, minBlock: bigint, c: PublicClient, exactBlock?: bigint) {
   const block = exactBlock ?? (await c.getBlockNumber({ cacheTime: 0 }));
   if (block < minBlock)
     throw Error("staleRead: RPC is behind the receipt block.");
@@ -203,14 +208,14 @@ export async function prepareOperation(
   await verifiedClient(m, c);
   const decodedIntent = parseIntent(m, call);
   const block = await c.getBlockNumber({ cacheTime: 0 });
+  const [canonical, f, result] = await Promise.all([
+    call.requestId !== null ? readVerifiedRequest(m, call.requestId, block, c, block) : Promise.resolve(null),
+    funds(m, account, c, block),
+    runPreflight({ publicClient: c, chainId: m.chainId, account, contractAddress: call.target,
+      operation: call.operation, callData: call.data, principal6: call.principal6, isChainSpecificClient: true }),
+  ]);
   if (call.requestId !== null) {
-    const { request: r } = await readCanonical(
-      m,
-      call.requestId,
-      block,
-      c,
-      block,
-    );
+    const r = canonical!.request;
     if (r.status !== 1)
       throw Error(
         `Request is ${r.status === 2 ? "Paid" : "Cancelled"}. Refresh canonical state.`,
@@ -223,7 +228,6 @@ export async function prepareOperation(
     )
       throw Error("Gross principal differs from canonical terms.");
   }
-  const f = await funds(m, account, c, block);
   if (call.operation === "pay" && f.allowance < call.principal6)
     throw Error(
       "Allowance insufficient. Approve exactly the gross amount first.",
@@ -235,16 +239,6 @@ export async function prepareOperation(
     throw Error(
       "insufficientPrincipal: Insufficient USDC for the request total.",
     );
-  const result = await runPreflight({
-    publicClient: c,
-    chainId: m.chainId,
-    account,
-    contractAddress: call.target,
-    operation: call.operation,
-    callData: call.data,
-    principal6: call.principal6,
-    isChainSpecificClient: true,
-  });
   if (!result.ok) throw Error(`${result.code}: ${result.message}`);
   assertMainnetBudget(m, account, call.operation, call.principal6, result.quote.feeBudget18, result.quote.nonce, call.operation === "create" ? (decodedIntent.args as readonly unknown[])[1] as bigint : undefined);
   await verifyProjectHistory(m, account, result.quote.nonce, c, block);
@@ -277,6 +271,7 @@ type SubmitParams = {
   provider: EIP1193Provider;
   store?: JournalStore;
   contextValid: () => boolean;
+  onStage?: (stage: "rechecking" | "wallet" | "confirming") => void;
   c?: PublicClient;
 };
 export async function submitOperation(p: SubmitParams) {
@@ -296,15 +291,12 @@ async function submitUnlocked(p: SubmitParams) {
     throw Error("此钱包仍有未决记录，请先核对钱包活动并只读恢复，不能重复提交。");
   if (!p.contextValid()) throw Error("Context changed before preflight.");
   if (isQuoteStale(reviewed)) throw Error("staleQuote: Review a fresh quote.");
+  p.onStage?.("rechecking");
   const fresh = await prepareOperation(m, account, call, c);
   if (fresh.quote.nonce !== reviewed.nonce) throw Error("钱包 nonce 已变化，请重新预览。");
   if (!p.contextValid()) throw Error("Context changed during preflight.");
-  if (
-    fresh.quote.gasLimit > reviewed.gasLimit ||
-    fresh.quote.maxFeePerGas18 > reviewed.maxFeePerGas18 ||
-    fresh.quote.priorityFee18 > reviewed.priorityFee18
-  )
-    throw Error("staleQuote: Fee cap increased. Review again.");
+  if (!freshQuoteFitsReview(reviewed, fresh.quote))
+    throw Error("feeEnvelopeExceeded: 实时所需费用已超出你确认的上限，未请求签名；请重新预览。已确认的费用上限不会自动提高。");
   const budget = checkFunding({
     operation: call.operation,
     principal6: call.principal6,
@@ -365,6 +357,7 @@ async function submitUnlocked(p: SubmitParams) {
     const hex = (n: bigint) => `0x${n.toString(16)}` as Hex;
     const finalError = verifySigningContext(reviewed, { chainId: ctx.chainId, account: ctx.account!, target: call.target, callData: call.data, value: 0n });
     if (!p.contextValid() || finalError) throw Error(finalError ?? "钱包上下文已变化。");
+    p.onStage?.("wallet");
     const hash = await provider.request({
       method: "eth_sendTransaction",
       params: [
@@ -386,6 +379,7 @@ async function submitUnlocked(p: SubmitParams) {
       effectiveTxHash: hash,
       txState: "submitted",
     });
+    p.onStage?.("confirming");
     await c.waitForTransactionReceipt({
       hash,
       timeout: 120000,

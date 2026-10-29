@@ -1,8 +1,10 @@
 export function userMessage(error: unknown): string {
   const s = error instanceof Error ? error.message : String(error);
+  if (/rate limit|defined limit|too many requests|429/i.test(s)) return "Arc RPC 请求过多，已暂停读取一分钟。请稍后点击重试；身份未核实前不会请求签名。";
   if (/[\u3400-\u9fff]/.test(s) && s.length < 220) return s;
   if (/4001|reject|declin/i.test(s)) return "你已拒绝钱包签名，未自动重试。";
-  if (/expired|staleQuote|fee cap increased/i.test(s)) return "报价或费用已变化，请重新预览后再确认。";
+  if (/feeEnvelopeExceeded|fee cap increased/i.test(s)) return "实时所需费用超出已确认上限，未请求签名。请更新报价，上限不会自动提高。";
+  if (/expired|staleQuote/i.test(s)) return "打开钱包前的报价已过期，未请求签名。请更新报价后确认。";
   if (/RequestNotOpen|Paid|Cancelled/i.test(s)) return "请求已付款或取消，请刷新链上状态。";
   if (/RequestNotFound/i.test(s)) return "未找到此链上请求，请检查链接编号。";
   if (/insufficientPrincipal|Insufficient USDC/i.test(s)) return "USDC 不足：需保留完整总额（含本人收款份额）及网络费用。";
