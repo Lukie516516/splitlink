@@ -39,7 +39,7 @@ export function PayPage({ receiptOnly = false }: { receiptOnly?: boolean }) {
     return (
       <section className="panel">
         <h1>{error}</h1>
-        <a href="/create">创建分账请求</a>
+        <a href="/create">Create a split request</a>
       </section>
     );
   return (
@@ -99,7 +99,7 @@ function RequestView({
           if (gen === generation.current) {
             setEvidence(null);
             setEvidenceError(
-              "链上状态为已付款，但交易细节暂未完成核验。",
+              "The request is paid onchain, but transaction details are not yet verified.",
             );
           }
         }
@@ -119,7 +119,7 @@ function RequestView({
         setCanonical(null);
         setLoadError(
           /RequestNotFound/.test(String(e))
-            ? "未找到请求。"
+            ? "Request not found."
             : userMessage(e),
         );
       }
@@ -161,10 +161,10 @@ function RequestView({
     return (
       <section className="panel">
         <h1>{loadError}</h1>
-        <button onClick={() => void refresh()}>重试</button>
+        <button onClick={() => void refresh()}>Retry</button>
       </section>
     );
-  if (!canonical) return <p>正在读取公开链上请求…</p>;
+  if (!canonical) return <p>Loading public onchain request…</p>;
   const { request: r, allocations } = canonical;
   const self = wallet.account
     ? r.recipients.reduce(
@@ -186,18 +186,18 @@ function RequestView({
         a.account.toLowerCase() === r.payer.toLowerCase(),
     );
   const attribution = !wallet.account
-    ? `此请求由 ${r.payer} 付款。`
+    ? `This request was paid by ${r.payer}.`
     : wallet.account.toLowerCase() !== r.payer.toLowerCase()
-      ? `此请求由其他钱包付款：${r.payer}。`
+      ? `Another wallet paid this request: ${r.payer}.`
       : ownAttempt
-        ? "你的付款已完成。"
-        : "此请求已由你的钱包付款。";
+        ? "Your payment is complete."
+        : "Your wallet has paid this request.";
   const blocked =
     op.busy || hasUnresolved(m, id) || wallet.chainId !== m.chainId;
   return (
     <section className="panel detail">
       <p>
-        {requestStatusLabel(r.status)} · 请求 #{id.toString()} ·{" "}
+        {requestStatusLabel(r.status)} · Request #{id.toString()} ·{" "}
         {m.chainName}
       </p>
       <h1>{r.title}</h1>
@@ -208,22 +208,22 @@ function RequestView({
         amounts={allocations}
       />
       <p>
-        收款人顺序与份额创建后不可更改，最小单位余数归最后一位。平台手续费为 0。
+        Recipient order and shares are fixed after creation. The rounding remainder goes to the final recipient. No platform fee.
       </p>
       <details>
-        <summary>链上条款</summary>
-        <code>创建人： {r.creator}</code>
-        <code>合约： {m.contractAddress}</code>
-        <p>创建时间 {new Date(Number(r.createdAt) * 1000).toISOString()}</p>
+        <summary>Onchain terms</summary>
+        <code>Creator: {r.creator}</code>
+        <code>Contract: {m.contractAddress}</code>
+        <p>Created {new Date(Number(r.createdAt) * 1000).toISOString()}</p>
       </details>
       {r.status === 2 ? (
         <>
           <div className="notice">{attribution}</div>
-          <code>实际付款人： {r.payer}</code>
+          <code>Payer: {r.payer}</code>
           {evidence ? (
             <div className="notice">
-              <strong>付款交易与分配事件已核实</strong>
-              <p>这是链上付款证明；不代表全部测试场景已验收。共享余额的同块归因仍需独立证据。</p>
+              <strong>Payment and distribution events verified</strong>
+              <p>This is onchain payment evidence, not full test acceptance. Attribution of shared-balance changes within a block requires separate evidence.</p>
               <code>{evidence.hash}</code>
               {m.explorerBase && (
                 <a
@@ -231,61 +231,61 @@ function RequestView({
                   target="_blank"
                   rel="noreferrer"
                 >
-                  查看已核实交易
+                  View verified transaction
                 </a>
               )}
               <p>
-                实际付款 gas 费： {formatFee18(evidence.fee18)}{" "}
-                {m.sharedBalance ? "USDC" : "local test ETH"} （按 gasUsed × effectiveGasPrice 向上取整显示）。
+                Actual payment gas fee: {formatFee18(evidence.fee18)}{" "}
+                {m.sharedBalance ? "USDC" : "local test ETH"} (gasUsed × effectiveGasPrice, rounded up for display).
               </p>
-              <p>付款时间 {new Date(Number(r.paidAt) * 1000).toISOString()}</p>
+              <p>Paid {new Date(Number(r.paidAt) * 1000).toISOString()}</p>
             </div>
           ) : (
             <div className="notice">
-              <span>{evidenceError || "正在核验付款交易与事件…"}</span>
-              <button onClick={() => void refresh()}>重读付款证据</button>
+              <span>{evidenceError || "Verifying payment transaction and events…"}</span>
+              <button onClick={() => void refresh()}>Refresh payment evidence</button>
             </div>
           )}
-          <a href={requestUrl(m, id, "receipt")}>打开收据</a>
+          <a href={requestUrl(m, id, "receipt")}>Open receipt</a>
         </>
       ) : r.status === 3 ? (
-        <div className="notice">此请求已取消，不能继续付款。</div>
+        <div className="notice">This request is cancelled and cannot be paid.</div>
       ) : receiptOnly ? (
         <div className="notice">
-          此请求仍可付款，尚无付款收据。
-          <a href={requestUrl(m, id)}>打开付款请求</a>
+          This request is still open. No payment receipt exists yet.
+          <a href={requestUrl(m, id)}>Open payment request</a>
         </div>
       ) : (
         <>
           <div className="notice">
             <p>
-              请求总额： {formatUsdc6(r.totalAmount)} USDC，网络费另计。任意钱包可支付，成功后不能再次支付。
+              Request total: {formatUsdc6(r.totalAmount)} USDC, plus network fees. Any wallet may pay. A successful payment cannot be repeated.
             </p>
             {self > 0n && (
               <>
                 <p>
-                  你的钱包也是收款人，将收到{" "}
-                  {formatUsdc6(self)} USDC 的分配份额。
+                  Your wallet is also a recipient and will receive{" "}
+                  {formatUsdc6(self)} USDC as its share.
                 </p>
                 <p>
-                  分配给其他收款人：{" "}
+                  Allocated to other recipients:{" "}
                   {formatUsdc6(r.totalAmount - self)} USDC.
                 </p>
                 <p>
-                  余额和授权仍需覆盖完整总额{" "}
+                  Balance and allowance must still cover the full total of{" "}
                   {formatUsdc6(r.totalAmount)} USDC.
                 </p>
                 {op.review?.call.operation === "pay" ? (
                   <p>
-                    预计净减少预算：{" "}
+                    Estimated maximum net outflow:{" "}
                     {m.sharedBalance
                       ? `${formatFee18((r.totalAmount - self) * 1000000000000n + op.review.quote.feeBudget18)} USDC`
                       : `${formatUsdc6(r.totalAmount - self)} USDC plus ${formatFee18(op.review.quote.feeBudget18)} local test ETH`}
-                    . 这是上限，不是实际支出。
+                    . This is a limit, not actual spending.
                   </p>
                 ) : (
                   <p>
-                    网络费未取得前，无法估算钱包净变化。
+                    Net wallet change cannot be estimated before network fees are available.
                   </p>
                 )}
               </>
@@ -293,22 +293,22 @@ function RequestView({
           </div>
           {!wallet.account ? (
             <button onClick={() => void wallet.connect(m).catch(e => alert(e.message))}>
-              连接钱包以付款
+              Connect wallet to pay
             </button>
           ) : wallet.chainId !== m.chainId ? (
             <p className="notice">
-              请切换至 {m.chainName} 后继续。 公开查询仍可使用。
-              <button onClick={() => void wallet.switchNetwork(m).catch(e => alert(e.message))}>切换至 {m.chainName}</button>
+              Switch to {m.chainName} to continue. Public reads remain available.
+              <button onClick={() => void wallet.switchNetwork(m).catch(e => alert(e.message))}>Switch to {m.chainName}</button>
             </p>
           ) : !f ? (
             <p className="notice">
-              授权或余额暂不可用，请重新读取后再签名。
-              <button onClick={() => void refresh()}>重新读取余额</button>
+              Allowance or balance is unavailable. Refresh before signing.
+              <button onClick={() => void refresh()}>Refresh balance</button>
             </p>
           ) : f.allowance < r.totalAmount ? (
             <>
               <div className="notice">
-                授权确认后才能估算付款费用。完成付款可能还需要更多 USDC。
+                Payment fees can be estimated after approval confirms. Additional USDC may be needed for payment.
               </div>
               <label className="check">
                 <input
@@ -319,7 +319,7 @@ function RequestView({
                     op.invalidate();
                   }}
                 />
-                我理解下一笔付款费用尚未知，授权不会支付此请求。
+                I understand payment fees are not yet known and approval does not pay this request.
               </label>
               {m.resetRequired && f.allowance > 0n && (
                 <label className="check">
@@ -331,7 +331,7 @@ function RequestView({
                       op.invalidate();
                     }}
                   />
-                  单独重置不足的授权额度，需要另付网络费。
+                  Resetting insufficient allowance is a separate transaction with its own network fee.
                 </label>
               )}
               <button
@@ -351,9 +351,9 @@ function RequestView({
                   )
                 }
               >
-                {op.busy ? "正在核验授权与费用…" : m.resetRequired && f.allowance > 0n
-                  ? "预览授权重置"
-                  : "预览准确授权"}
+                {op.busy ? "Checking approval and fees…" : m.resetRequired && f.allowance > 0n
+                  ? "Preview allowance reset"
+                  : "Preview exact approval"}
               </button>
             </>
           ) : (
@@ -363,14 +363,14 @@ function RequestView({
                 void op.prepare(requestIntent(m, "pay", id, r.totalAmount))
               }
             >
-              {op.busy ? "正在核验付款与费用…" : "预览本次付款"}
+              {op.busy ? "Checking payment and fees…" : "Preview payment"}
             </button>
           )}
           {f && (
             <p>
-              USDC 余额： {formatUsdc6(f.balance6)} USDC · 原生余额（18 位）： {f.native18.toString()}.{" "}
+              USDC balance: {formatUsdc6(f.balance6)} USDC · Native balance (18 decimals): {f.native18.toString()}.{" "}
               {m.sharedBalance
-                ? "同一资产的两种精度，不相加。"
+                ? "Two decimal representations of the same asset. Do not add them together."
                 : "LOCAL MOCK: token principal and test ETH gas are separate assets."}
             </p>
           )}
@@ -386,7 +386,7 @@ function RequestView({
                   void op.prepare(requestIntent(m, "cancel", id));
               }}
             >
-              取消请求
+              Cancel request
             </button>
           )}
         </>

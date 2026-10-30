@@ -12,11 +12,11 @@ export async function ensureArcNetwork(provider: EIP1193Provider, m: NetworkMani
     await provider.request({ method: "wallet_addEthereumChain", params: [{ chainId: chainHex, chainName: m.chainName, nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 }, rpcUrls: [m.rpcUrl!], blockExplorerUrls: [m.explorerBase] }] });
     await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: chainHex }] });
   }
-  if (Number(await provider.request({ method: "eth_chainId" })) !== m.chainId) throw Error(`钱包未切换至 ${m.chainName}，请在钱包内确认。`);
+  if (Number(await provider.request({ method: "eth_chainId" })) !== m.chainId) throw Error(`Wallet did not switch to ${m.chainName}. Confirm the network in your wallet.`);
 }
 export function walletError(error: unknown) {
-  if ((error as { code?: number })?.code === 4001) return "你已取消钱包请求，未自动重试。";
-  return error instanceof Error && /[\u3400-\u9fff]/.test(error.message) ? error.message : "钱包请求未完成。请解锁钱包、检查网络并重试；不会自动签名。";
+  if ((error as { code?: number })?.code === 4001) return "You cancelled the wallet request. No automatic retry.";
+  return error instanceof Error && !/[\u3400-\u9fff]/.test(error.message) ? error.message : "Wallet request incomplete. Unlock your wallet, check the network and retry. No automatic signing.";
 }
 
 export const ensureArcTestnet = (provider: EIP1193Provider) => ensureArcNetwork(provider, {...getManifest(), chainId: 5042002, chainName: "Arc Testnet", rpcUrl: "https://rpc.testnet.arc.io", explorerBase: "https://explorer.testnet.arc.io"});

@@ -1,4 +1,5 @@
-import { assertMainnetBudget, verifyProjectHistory } from "./mainnetBudget";
+import { assertMainnetFeeCap } from "./mainnetBudget";
+import { verificationReads } from "./verificationReads";
 // External continuation of Studio production modules: one controller for ALL five writes.
 import {
   decodeEventLog,
@@ -203,10 +204,10 @@ export async function prepareOperation(
 ) {
   if (!manifestIsReadyForWrites(m) || !operationAllowed(m, call.operation))
     throw Error(
-      "此操作尚未开放；仅已审部署的创建、准确授权和付款可用。",
+      "This operation is disabled. Only create, exact approval and payment are available for the reviewed deployment.",
     );
   await verifiedClient(m, c);
-  const decodedIntent = parseIntent(m, call);
+  parseIntent(m, call);
   const block = await c.getBlockNumber({ cacheTime: 0 });
   const [canonical, f, result] = await Promise.all([
     call.requestId !== null ? readVerifiedRequest(m, call.requestId, block, c, block) : Promise.resolve(null),
@@ -240,8 +241,7 @@ export async function prepareOperation(
       "insufficientPrincipal: Insufficient USDC for the request total.",
     );
   if (!result.ok) throw Error(`${result.code}: ${result.message}`);
-  assertMainnetBudget(m, account, call.operation, call.principal6, result.quote.feeBudget18, result.quote.nonce, call.operation === "create" ? (decodedIntent.args as readonly unknown[])[1] as bigint : undefined);
-  await verifyProjectHistory(m, account, result.quote.nonce, c, block);
+  assertMainnetFeeCap(m, result.quote.feeBudget18);
   const funding = checkFunding({
     operation: call.operation,
     principal6: call.principal6,
@@ -271,13 +271,13 @@ type SubmitParams = {
   provider: EIP1193Provider;
   store?: JournalStore;
   contextValid: () => boolean;
-  onStage?: (stage: "rechecking" | "wallet" | "confirming") => void;
+  onStage?: (stage: "rechecking" | "wallet" | "confirming" | "verifying") => void;
   c?: PublicClient;
 };
 export async function submitOperation(p: SubmitParams) {
-  if (!globalThis.navigator?.locks) throw Error("浏览器不支持跨标签交易保护，请使用最新桌面浏览器的 HTTPS 页面。");
+  if (!globalThis.navigator?.locks) throw Error("Cross-tab transaction protection is unavailable. Use an up-to-date desktop browser over HTTPS.");
   return navigator.locks.request("splitlink-journal-write:v1", { ifAvailable: true }, async (lock) => {
-    if (!lock) throw Error("另一个标签页正在处理钱包交易，请先完成或恢复。");
+    if (!lock) throw Error("Another tab is processing a wallet transaction. Complete it or recover status first.");
     return submitUnlocked(p);
   });
 }
@@ -286,17 +286,17 @@ async function submitUnlocked(p: SubmitParams) {
   const store = p.store ?? journal(),
     c = p.c ?? (publicClientFor(m) as PublicClient);
   store.refreshFromStorage();
-  if (store.warning) throw Error("本机交易记录不可用，保持只读。请恢复浏览器存储后再操作。");
+  if (store.warning) throw Error("Local transaction records are unavailable. Read-only mode is active. Restore browser storage before continuing.");
   if (store.records.some(r => r.chainId === m.chainId && equal(r.account, account) && ["unknown", "prepared", "awaitingSignature", "submitted"].includes(r.txState)))
-    throw Error("此钱包仍有未决记录，请先核对钱包活动并只读恢复，不能重复提交。");
+    throw Error("This wallet has an unresolved record. Check wallet activity and recover status; do not submit again.");
   if (!p.contextValid()) throw Error("Context changed before preflight.");
   if (isQuoteStale(reviewed)) throw Error("staleQuote: Review a fresh quote.");
   p.onStage?.("rechecking");
   const fresh = await prepareOperation(m, account, call, c);
-  if (fresh.quote.nonce !== reviewed.nonce) throw Error("钱包 nonce 已变化，请重新预览。");
+  if (fresh.quote.nonce !== reviewed.nonce) throw Error("The wallet nonce changed. Preview again.");
   if (!p.contextValid()) throw Error("Context changed during preflight.");
   if (!freshQuoteFitsReview(reviewed, fresh.quote))
-    throw Error("feeEnvelopeExceeded: 实时所需费用已超出你确认的上限，未请求签名；请重新预览。已确认的费用上限不会自动提高。");
+    throw Error("feeEnvelopeExceeded: Live fees exceed your reviewed limits. No signature requested. Preview again; approved limits never increase automatically.");
   const budget = checkFunding({
     operation: call.operation,
     principal6: call.principal6,
@@ -306,7 +306,7 @@ async function submitUnlocked(p: SubmitParams) {
     sharedBalance: m.sharedBalance,
   });
   if (!budget.ok) throw Error(budget.error);
-  assertMainnetBudget(m, account, call.operation, call.principal6, reviewed.feeBudget18, reviewed.nonce, call.operation === "create" ? (parseIntent(m,call).args as readonly unknown[])[1] as bigint : undefined);
+  assertMainnetFeeCap(m, reviewed.feeBudget18);
   const ctx = await providerContext(provider);
   if (
     !p.contextValid() ||
@@ -350,13 +350,13 @@ async function submitUnlocked(p: SubmitParams) {
     replacementKind: null,
     error: null,
   };
-  if (!store.put(r)) throw Error("无法保存交易意图，已停止请求钱包。");
+  if (!store.put(r)) throw Error("Could not save the transaction intent. Wallet request stopped.");
   store.patch(r, { txState: "awaitingSignature" });
-  if (store.warning) throw Error("无法保存交易状态，已停止请求钱包。");
+  if (store.warning) throw Error("Could not save transaction status. Wallet request stopped.");
   try {
     const hex = (n: bigint) => `0x${n.toString(16)}` as Hex;
     const finalError = verifySigningContext(reviewed, { chainId: ctx.chainId, account: ctx.account!, target: call.target, callData: call.data, value: 0n });
-    if (!p.contextValid() || finalError) throw Error(finalError ?? "钱包上下文已变化。");
+    if (!p.contextValid() || finalError) throw Error(finalError ?? "Wallet context changed.");
     p.onStage?.("wallet");
     const hash = await provider.request({
       method: "eth_sendTransaction",
@@ -392,6 +392,7 @@ async function submitUnlocked(p: SubmitParams) {
         }
       },
     });
+    p.onStage?.("verifying");
   } catch (e) {
     const code = (e as { code?: number }).code;
     store.patch(r, {
@@ -436,14 +437,17 @@ export async function verifySettlementReceipt(
 ) {
   if (receipt.status !== "success")
     throw Error("Failed receipt is not settlement evidence.");
-  const canonical = await readCanonical(m, id, receipt.blockNumber, c, receipt.blockNumber);
-  const latest = await readCanonical(m, id, receipt.blockNumber, c);
+  c = verificationReads(c);
+  const [canonical, latest, paidBlock] = await Promise.all([
+    readCanonical(m, id, receipt.blockNumber, c, receipt.blockNumber),
+    readCanonical(m, id, receipt.blockNumber, c),
+    c.getBlock({ blockNumber: receipt.blockNumber }),
+  ]);
   const r = canonical.request;
-  const paidBlock = await c.getBlock({ blockNumber: receipt.blockNumber });
   if (r.status !== 2 || latest.request.status !== 2 ||
     !equal(latest.request.payer, r.payer) || r.paidAt !== paidBlock.timestamp ||
     latest.request.paidAt !== r.paidAt)
-    throw Error("付款状态、付款人或付款时间尚未核实。");
+    throw Error("Payment status, payer or timestamp is not verified.");
   const identity = await recoverRecord(c, receipt.transactionHash, {
     expectedTarget: m.contractAddress,
     expectedSender: r.payer,
@@ -541,13 +545,14 @@ async function recoverUnlocked(
   m: NetworkManifest,
   c: PublicClient,
 ) {
+  c = verificationReads(c);
   if (r.chainId !== m.chainId || !equal(r.contractAddress, m.contractAddress))
     return;
   if (r.txState === "rejected" || r.txState === "cancelledByReplacement")
     return;
   if (r.nonce === null) {
     store.patch(r, { txState: "unknown", businessVerification: "unavailable", error: {
-      code: "missingFrozenNonce", message: "缺少签名前固定的 nonce，不能将实际交易追认为原意图。"
+      code: "missingFrozenNonce", message: "The nonce frozen before signing is missing. The transaction cannot be attributed to the original intent."
     } });
     return;
   }
@@ -623,14 +628,16 @@ async function recoverUnlocked(
         (r.operationType === "approveReset" ? 0n : current.request.totalAmount)
       )
         throw Error("Approval amount differs from canonical gross amount.");
-      await funds(m, r.account as Address, c, current.block);
+      const [at] = await Promise.all([
+        funds(m, r.account as Address, c, receipt.blockNumber),
+        funds(m, r.account as Address, c, current.block),
+      ]);
       const approvals = receipt.logs.filter(l => equal(l.address, m.usdcAddress)).flatMap(l => {
         try { return [decodeEventLog({ abi: erc20Abi, data: l.data, topics: l.topics, strict: true })]; } catch { return []; }
       }).filter(e => e.eventName === "Approval");
-      const at = await funds(m, r.account as Address, c, receipt.blockNumber);
       if (approvals.length !== 1 || !equal(approvals[0].args.owner, r.account) ||
         !equal(approvals[0].args.spender, m.contractAddress) || approvals[0].args.value !== args[1] || at.allowance !== args[1])
-        throw Error("授权事件或实际额度尚未核实；授权不是付款。");
+        throw Error("Approval event or actual allowance is unverified. Approval is not payment.");
     } else if (r.operationType === "create") {
       if (!equal(r.to, m.contractAddress) || d.functionName !== "createRequest")
         throw Error("Creation call mismatch.");

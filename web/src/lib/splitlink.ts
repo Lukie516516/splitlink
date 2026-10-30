@@ -26,11 +26,11 @@ export type RequestStatusValue =
 export function requestStatusLabel(s: number): string {
   switch (s) {
     case 1:
-      return "可付款";
+      return "Open";
     case 2:
-      return "已付款";
+      return "Paid";
     case 3:
-      return "已取消";
+      return "Cancelled";
     default:
       return "Unknown";
   }

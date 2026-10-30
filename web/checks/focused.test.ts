@@ -42,3 +42,28 @@ test('fee changes inside reviewed envelope do not require a higher authorization
  assert.equal(freshQuoteFitsReview(reviewed,fresh),true);
  for(const changed of [{estimatedGas:121n},{requiredMaxFeePerGas18:121n},{priorityFee18:3n},{nonce:3}])assert.equal(freshQuoteFitsReview(reviewed,{...fresh,...changed}),false);
 });
+
+import { verificationReads } from '../src/lib/verificationReads';
+test('receipt verification coalesces identical reads only inside one pass; mutable latest and failures stay fresh',async()=>{
+ let codeReads=0,contractReads=0,headReads=0,failReads=0;
+ const c={
+  getCode:async()=>{codeReads++;return '0x6000'},
+  readContract:async()=>{contractReads++;return 1n},
+  getBlockNumber:async()=>++headReads,
+  getTransaction:async()=>{failReads++;if(failReads===1)throw Error('transient');return {nonce:4}},
+ } as any;
+ const pass=verificationReads(c);
+ await Promise.all([pass.getCode({address:account as any}),pass.getCode({address:account as any})]);
+ await pass.getCode({address:account as any});assert.equal(codeReads,1);
+ await pass.readContract({address:account,abi:[],functionName:'getRequest',blockNumber:20n} as any);
+ await pass.readContract({address:account,abi:[],functionName:'getRequest',blockNumber:20n} as any);
+ await pass.readContract({address:account,abi:[],functionName:'getRequest',blockNumber:21n} as any);
+ assert.equal(contractReads,2);
+ await pass.readContract({address:account,abi:[],functionName:'getRequest'} as any);
+ await pass.readContract({address:account,abi:[],functionName:'getRequest'} as any);
+ assert.equal(contractReads,4);
+ await pass.getBlockNumber();await pass.getBlockNumber();assert.equal(headReads,2);
+ await assert.rejects(pass.getTransaction({hash:'0x01'} as any),/transient/);
+ await pass.getTransaction({hash:'0x01'} as any);assert.equal(failReads,2);
+ await verificationReads(c).getCode({address:account as any});assert.equal(codeReads,2);
+});

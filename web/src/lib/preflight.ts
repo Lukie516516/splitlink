@@ -109,7 +109,7 @@ export async function runPreflight(p: {
       throw Error("RPC chain mismatch.");
     const block = await p.publicClient.getBlock({ blockTag: "latest" });
     if (block.baseFeePerGas == null || Math.abs(Date.now() / 1000 - Number(block.timestamp)) > 60)
-      throw Error("区块或费用数据已过期，请重新读取。");
+      throw Error("Block or fee data is stale. Refresh and try again.");
     const abi =
       p.operation === "approve" || p.operation === "approveReset"
         ? erc20Abi
@@ -126,7 +126,7 @@ export async function runPreflight(p: {
       }),
       p.publicClient.estimateGas({ account: p.account, to: p.contractAddress, data: p.callData, value: 0n }),
     ]);
-    if (nonce !== pending) throw Error("钱包仍有待处理交易，请先等待或恢复状态。");
+    if (nonce !== pending) throw Error("The wallet has a pending transaction. Wait or recover status first.");
     if (fees.maxFeePerGas == null) throw Error("Fee estimate unavailable.");
     if ((p.operation === "approve" || p.operation === "approveReset") && simulation.result === false)
       throw Error("execution reverted: approval simulation returned false.");
@@ -138,7 +138,7 @@ export async function runPreflight(p: {
       (block.baseFeePerGas ?? 0n) + priority,
     ].reduce((a, b) => (a > b ? a : b));
     const limit = ceilDiv(gas, GAS_LIMIT_MARGIN_BPS, 10000n);
-    if (Date.now() - startedAt >= QUOTE_TTL_MS) throw Error("费用复核超时，请重新预览。");
+    if (Date.now() - startedAt >= QUOTE_TTL_MS) throw Error("Fee review timed out. Preview again.");
     return {
       ok: true,
       fundingOk: true,

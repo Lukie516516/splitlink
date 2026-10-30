@@ -20,7 +20,7 @@ export default function App() {
               path="/receipt/:chainId/:contractAddress/:requestId"
               element={<PayPage receiptOnly />}
             />
-            <Route path="*" element={<h1>未找到页面。</h1>} />
+            <Route path="*" element={<h1>Page not found.</h1>} />
           </Routes>
         </Layout>
       </BrowserRouter>

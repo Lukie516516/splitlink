@@ -3,7 +3,7 @@ export function makeRpcThrottle(fetcher: (input: RequestInfo | URL, init?: Reque
   let tail: Promise<void> = Promise.resolve(), nextAt = 0, blockedUntil = 0;
   const limited = (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const task = tail.then(async () => {
-      if (Date.now() < blockedUntil) throw Error("RPC rate limit: 请等待一分钟后重新读取，期间未请求签名。");
+      if (Date.now() < blockedUntil) throw Error("RPC rate limit: Wait one minute before reading again. No signature requested.");
       const wait = Math.max(0, nextAt - Date.now());
       if (wait) await new Promise(resolve => setTimeout(resolve, wait));
       const response = await fetcher(input, init);
@@ -11,7 +11,7 @@ export function makeRpcThrottle(fetcher: (input: RequestInfo | URL, init?: Reque
       const body = await response.clone().text();
       if (response.status === 429 || /rate limit exceeded|Request exceeds defined limit|too many requests/i.test(body)) {
         blockedUntil = Date.now() + cooldownMs;
-        throw Error("RPC rate limit: 请等待一分钟后重新读取，身份未核实前不会请求签名。");
+        throw Error("RPC rate limit: Wait one minute before reading again. No signature will be requested until identity is verified.");
       }
       return response;
     });

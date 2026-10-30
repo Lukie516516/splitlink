@@ -26,14 +26,14 @@ export function useOperation(
     key: string;
   } | null>(null);
   const [busy, setBusy] = useState(false);
-  const [stage, setStage] = useState<"idle" | "rechecking" | "wallet" | "confirming">("idle");
+  const [stage, setStage] = useState<"idle" | "rechecking" | "wallet" | "confirming" | "verifying">("idle");
   const [message, setMessage] = useState("");
   useEffect(() => {
     setReview(null);
   }, [wallet.generation, m]);
   const prepare = async (call: Intent) => {
     if (!wallet.account || wallet.chainId !== m.chainId) {
-      setMessage(`请切换至 ${m.chainName} 后继续。`);
+      setMessage(`Switch to ${m.chainName} to continue.`);
       return;
     }
     const key = wallet.live(),
@@ -79,10 +79,10 @@ export function useOperation(
       setMessage(
         record.txState === "confirmed" &&
           record.businessVerification === "verified"
-          ? record.operationType === "create" ? `创建已核实，请在下方打开实际请求 #${record.requestId} 并分享。` : record.operationType === "approve" ? "授权交易和准确额度已核实；这不是付款，请重新预览付款费用。" : "付款交易、分配事件与链上状态已核实；完整测试验收与余额归因单独列示。"
+          ? record.operationType === "create" ? `Creation verified. Open and share actual request #${record.requestId} below.` : record.operationType === "approve" ? "Approval and exact allowance verified. This is not payment. Preview the payment fees next." : "Payment, distribution events and onchain state verified. Full acceptance and balance attribution are recorded separately."
           : record.txState === "rejected"
-            ? "你已拒绝本次签名。"
-            : `本次状态：${record.txState}；链上结果核验：${record.businessVerification}。${record.error ? userMessage(record.error.message) : "结果未决时仅恢复，不重复提交。"}`,
+            ? "You rejected this signature."
+            : `Transaction status: ${record.txState}; Onchain verification: ${record.businessVerification}。${record.error ? userMessage(record.error.message) : "If unresolved, recover status only. Do not submit again."}`,
       );
     } catch (e) {
       setMessage(userMessage(e));

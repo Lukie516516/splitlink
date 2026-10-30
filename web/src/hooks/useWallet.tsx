@@ -66,7 +66,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         connect: async (m = getManifest()) => {
           if (!window.ethereum)
             throw Error(
-              "未检测到浏览器钱包。请安装兼容 EVM 的钱包扩展，或在钱包浏览器中打开本站；公开查询无需连接。",
+              "No browser wallet detected. Install an EVM-compatible extension or open this site in your wallet browser. Public reads do not require a wallet.",
             );
           try {
             await window.ethereum.request({ method: "eth_requestAccounts" });
@@ -75,7 +75,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           } catch (e) { await refresh(); throw Error(walletError(e)); }
         },
         switchNetwork: async (m = getManifest()) => {
-          if (!window.ethereum) throw Error("未检测到浏览器钱包，请先连接。");
+          if (!window.ethereum) throw Error("No browser wallet detected. Connect a wallet first.");
           try { await ensureArcNetwork(window.ethereum, m); await refresh(); }
           catch (e) { throw Error(walletError(e)); }
         },

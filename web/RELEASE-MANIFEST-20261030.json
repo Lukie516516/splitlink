@@ -1,0 +1,179 @@
+{
+  "siteVersion": 13,
+  "siteSourceCommit": "40dbf58ea565db157b8531aa9a5db8256059404f",
+  "liveUrl": "https://splitlink.yongzhitangcn.chatgpt.site",
+  "files": [
+    {
+      "path": "web/checks/focused.test.ts",
+      "gitBlobSha": "55e11470a4ba526a027bf8c5496eee21755646ed"
+    },
+    {
+      "path": "web/checks/mainnet.test.ts",
+      "gitBlobSha": "2469f0a5ed1ba1b30ccbd0bbc3cc345799ca699e"
+    },
+    {
+      "path": "web/checks/preview-timing.ts",
+      "gitBlobSha": "4066de0c71368806b9610c15533c3c2058127601"
+    },
+    {
+      "path": "web/checks/public-readonly.ts",
+      "gitBlobSha": "bcbda496b4f193d455b99241aac4d40098dbb53e"
+    },
+    {
+      "path": "web/checks/rpc-throttle.test.ts",
+      "gitBlobSha": "16f9602b1d59447cfb1f273a8d13943b1be1f592"
+    },
+    {
+      "path": "web/checks/run.mjs",
+      "gitBlobSha": "23d8df13f527c434d71159f4eadef321746ead7b"
+    },
+    {
+      "path": "web/index.html",
+      "gitBlobSha": "0a0d74b512c85ee1de8fdf60ce3e59304076c9b9"
+    },
+    {
+      "path": "web/public/_redirects",
+      "gitBlobSha": "7797f7c6a7356b0d451d11a49925df854c22e978"
+    },
+    {
+      "path": "web/public/local-manifest.json",
+      "gitBlobSha": "3409f8f6311444e7894f6f0c374a4783284a1420"
+    },
+    {
+      "path": "web/src/App.tsx",
+      "gitBlobSha": "08806129d0a26094a5e55ab8a0b5ebdb951bb311"
+    },
+    {
+      "path": "web/src/components/CreatePage.tsx",
+      "gitBlobSha": "19b3fa8952804b6af95a51736ecbe0eb511d950c"
+    },
+    {
+      "path": "web/src/components/HomePage.tsx",
+      "gitBlobSha": "60a1fab0efb642e7d201fa2472ca31ab0ccd35c8"
+    },
+    {
+      "path": "web/src/components/Layout.tsx",
+      "gitBlobSha": "e6845eab3b48d831453f96ec7cd4dd86051b8d67"
+    },
+    {
+      "path": "web/src/components/MyRequests.tsx",
+      "gitBlobSha": "df6e1656f1e8767c4e6059b19259532ea5dfbb20"
+    },
+    {
+      "path": "web/src/components/PayPage.tsx",
+      "gitBlobSha": "d7a4db7a780f8ff99139b8bb744078b2002460db"
+    },
+    {
+      "path": "web/src/components/ReceiptPage.tsx",
+      "gitBlobSha": "8cc082c3a262c36282206d34b3e1ebcfc9d20479"
+    },
+    {
+      "path": "web/src/components/Review.tsx",
+      "gitBlobSha": "46d8f929030091004d3ae874cfad296abe2eee2c"
+    },
+    {
+      "path": "web/src/components/TransactionActivity.tsx",
+      "gitBlobSha": "09f9ebda0c711ddb67d5829b3cea2d3aef52fb44"
+    },
+    {
+      "path": "web/src/components/reviewTypes.ts",
+      "gitBlobSha": "90531762071ec32d6837a0a8b236e02e8fb65d9f"
+    },
+    {
+      "path": "web/src/components/ui.tsx",
+      "gitBlobSha": "f1ac16b3fd595b48b08b040ad7e432209a9a371e"
+    },
+    {
+      "path": "web/src/hooks/useOperation.ts",
+      "gitBlobSha": "11def2c44f85bee8c9d737ca70a9bade2d763515"
+    },
+    {
+      "path": "web/src/hooks/useWallet.tsx",
+      "gitBlobSha": "c391e4876eda552e7769293b322fe2239b6c10a1"
+    },
+    {
+      "path": "web/src/index.css",
+      "gitBlobSha": "b65f0f0d0ba9d46a7d0500449f1ffbe1ab420ba8"
+    },
+    {
+      "path": "web/src/lib/generatedAbi.ts",
+      "gitBlobSha": "c0a14db1871ccd059c96eb6382757fc452c76b12"
+    },
+    {
+      "path": "web/src/lib/history.ts",
+      "gitBlobSha": "a5bc6ff92d84b98cbeeb3b7b8588c35f7c9d36a9"
+    },
+    {
+      "path": "web/src/lib/journal-testexports.ts",
+      "gitBlobSha": "58ab5f7fb3d30224f9ced498d8dd6b46b8a7fe38"
+    },
+    {
+      "path": "web/src/lib/journal.ts",
+      "gitBlobSha": "6335e58c14431d342a6a5c02cf38ccd2152354eb"
+    },
+    {
+      "path": "web/src/lib/mainnetBudget.ts",
+      "gitBlobSha": "aa6b5ec07d650ac408b8ea16dafa872ee74c8b99"
+    },
+    {
+      "path": "web/src/lib/manifest.ts",
+      "gitBlobSha": "fcbdff8d8e9b7db833deb6a4ad3d39fa47a01922"
+    },
+    {
+      "path": "web/src/lib/messages.ts",
+      "gitBlobSha": "97fb1b154261fc9d5e16ad9150f74fc7853abd27"
+    },
+    {
+      "path": "web/src/lib/preflight.ts",
+      "gitBlobSha": "1b390cf97a6a955474468c3996d24236591b576f"
+    },
+    {
+      "path": "web/src/lib/rpcThrottle.ts",
+      "gitBlobSha": "9e91571d5f801eb2e39db82fa95e9e99a569edb2"
+    },
+    {
+      "path": "web/src/lib/runner.ts",
+      "gitBlobSha": "63f77db05d97c30fa45ef701ddbebd9f62763362"
+    },
+    {
+      "path": "web/src/lib/share.ts",
+      "gitBlobSha": "0c48e7cc4da3577dc2c463b70756afa7b0489287"
+    },
+    {
+      "path": "web/src/lib/splitlink.ts",
+      "gitBlobSha": "ec71590a94a761efd1b1c14af4e67fdfcd6a618c"
+    },
+    {
+      "path": "web/src/lib/verificationReads.ts",
+      "gitBlobSha": "e5047cc7cc7bc554d8d63fa7fbc8b274615b67a5"
+    },
+    {
+      "path": "web/src/lib/walletNetwork.ts",
+      "gitBlobSha": "9028c7b808d6c629eb05fca799044216259d724b"
+    },
+    {
+      "path": "web/src/main.tsx",
+      "gitBlobSha": "21154c4b4b4c9fd1ba27983998cb0e67c66a5208"
+    },
+    {
+      "path": "web/src/onchain-facts.ts",
+      "gitBlobSha": "c4cdeecfc553c2e493a5989ec7ef68c30f59b050"
+    },
+    {
+      "path": "web/src/onchain-money.ts",
+      "gitBlobSha": "32e705784800a6a8176f1eef19641b391db9fa7a"
+    },
+    {
+      "path": "web/src/vite-env.d.ts",
+      "gitBlobSha": "b2b03b5b1e20c49a1e5942b80bf6fa71071b6cb7"
+    }
+  ],
+  "validation": "Typecheck, production build and 14 focused checks passed. No new live transactions performed for the v13 verification-read change.",
+  "changes": [
+    "English flow UI",
+    "General repeatable wallet flow, including wallet A; one-time demo restrictions removed at user request",
+    "Receipt-received verification stage and per-verification read coalescing"
+  ],
+  "historicalEvidence": "Earlier candidate reviews apply to their exact snapshots. Later UI/performance development was external following partial Arc Studio export.",
+  "submissionStatus": "Video URL and final submission receipt pending"
+}

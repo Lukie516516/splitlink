@@ -3,7 +3,7 @@ import { decodeFunctionData, erc20Abi } from "viem";
 import { SPLITLINK_ABI, formatUsdc6 } from "@/lib/splitlink";
 import { type ReturnTypeOfOperation } from "./reviewTypes";
 import { formatFee18, QUOTE_TTL_MS } from "@/lib/preflight";
-const names = { create: "创建请求", approve: "设置准确授权额度", pay: "支付分账", approveReset: "重置授权", cancel: "取消请求" };
+const names = { create: "Create request", approve: "Set exact allowance", pay: "Pay split", approveReset: "Reset allowance", cancel: "Cancel request" };
 export function Review({ op }: { op: ReturnTypeOfOperation }) {
   const [, tick] = useState(0);
   useEffect(() => { const t = setInterval(() => tick(n => n + 1), 1000); return () => clearInterval(t); }, []);
@@ -13,20 +13,19 @@ export function Review({ op }: { op: ReturnTypeOfOperation }) {
   const approval = ["approve", "approveReset"].includes(r.call.operation);
   const d = decodeFunctionData({ abi: approval ? erc20Abi : SPLITLINK_ABI, data: r.call.data });
   const args = d.args as readonly unknown[];
-  return <section className="review" aria-label="交易复核">
-    <h2>复核：{names[r.call.operation]}</h2>
-    <p>{op.manifest.chainName} · {op.manifest.environment === "arc-mainnet" ? "真实 USDC · 消耗真实资金" : "测试 USDC"} · {op.stage === "wallet" ? "已送交钱包，等待本人确认" : op.stage === "confirming" ? "已广播，等待链上回执" : remaining > 0 ? `打开钱包前有效期还剩 ${remaining} 秒` : "报价已过期，请更新报价"}</p>
-    <code>签名钱包：{r.account}</code><code>交易目标：{r.call.target}</code>
-    {r.call.operation === "create" ? <><p>公开标题：{String(args[0])}</p><p>请求总额：{formatUsdc6(args[1] as bigint)} USDC（创建时不转移本金）</p>{(args[2] as readonly string[]).map((a,i)=><code key={a}>收款人 {i+1}：{a} · {Number((args[3] as readonly number[])[i])/100}%</code>)}</> : <p>请求编号：{r.call.requestId?.toString()} · 总额 {formatUsdc6(r.call.principal6)} USDC</p>}
-    {approval && <><code>授权给：{String(args[0])}</code><p>设置总额度为 {formatUsdc6(args[1] as bigint)} USDC，不是增加额度；授权不等于付款。</p></>}
-    {r.call.operation === "pay" && <p>一次支付完整总额，包含本人作为收款人的份额；必须有完整总额的余额和授权。</p>}
-    <p>原生 value：0 · nonce：{r.quote.nonce} · gas 上限：{r.quote.gasLimit.toString()}</p>
-    <p>本次最高 gas 预算：<strong>{formatFee18(r.quote.feeBudget18)} USDC</strong>（向上取整，实际费以收据为准）。{r.call.operation === "pay" ? "本金另计。" : ""}</p>
-    <p>原生 gas 使用 18 位精度，USDC 合约使用 6 位，两者是同一余额，不能相加。</p>
-    {op.manifest.environment === "arc-mainnet" && r.account.toLowerCase() === "0x50df19631d9410ecee43850e21e46322114ee483" && <p>项目钱包仅允许本轮一次 0.010001 USDC 分账的固定 nonce 序列，前序实际收据和费用逐步核对；入账或清除记录不会增加次数。每笔 gas 硬上限 0.02 USDC，未知或失败时停止。</p>}
-    <details><summary>查看准确 calldata</summary><code>{r.call.data}</code></details>
-    <p>打开钱包前再次核验实时费用；允许原费用上限内的波动，不会自动提额。30 秒有效期用于打开钱包前的检查，不是链上回执倒计时。钱包内由你本人确认，长时间未确认可拒绝；不会自动重签或重发。</p>
-    <button disabled={op.busy} onClick={op.close}>返回，不请求签名</button>
-    <button disabled={op.busy} onClick={() => void (remaining === 0 ? op.prepare(r.call) : op.sign())}>{op.busy ? op.stage === "wallet" ? "请在钱包中确认…" : op.stage === "confirming" ? "已广播，等待链上确认…" : "正在复核实时费用…" : remaining === 0 ? "更新报价（不请求签名）" : "本人确认，打开钱包签名"}</button>
+  return <section className="review" aria-label="Transaction review">
+    <h2>Review: {names[r.call.operation]}</h2>
+    <p>{op.manifest.chainName} · {op.manifest.environment === "arc-mainnet" ? "Mainnet USDC · Real funds" : "Test USDC"} · {op.stage === "wallet" ? "Sent to wallet. Confirm in your wallet." : op.stage === "confirming" ? "Broadcast. Waiting for the onchain receipt." : op.stage === "verifying" ? "Receipt received. Verifying transaction identity and split results…" : remaining > 0 ? `Quote valid for ${remaining}s before wallet handoff` : "Quote expired. Refresh to continue."}</p>
+    <code>Signing wallet:{r.account}</code><code>Transaction target:{r.call.target}</code>
+    {r.call.operation === "create" ? <><p>Public title:{String(args[0])}</p><p>Request total:{formatUsdc6(args[1] as bigint)} USDC (creation does not transfer the payment amount)</p>{(args[2] as readonly string[]).map((a,i)=><code key={a}>Recipient {i+1}：{a} · {Number((args[3] as readonly number[])[i])/100}%</code>)}</> : <p>Request ID:{r.call.requestId?.toString()} · Total {formatUsdc6(r.call.principal6)} USDC</p>}
+    {approval && <><code>Spender:{String(args[0])}</code><p>Set the total allowance to {formatUsdc6(args[1] as bigint)} USDC, replacing the current allowance. Approval is not payment.</p></>}
+    {r.call.operation === "pay" && <p>Pay the full total once, including any share returned to your own wallet. Balance and allowance must cover the full total.</p>}
+    <p>Native value: 0 · Nonce:{r.quote.nonce} · Gas limit:{r.quote.gasLimit.toString()}</p>
+    <p>Maximum gas cost:<strong>{formatFee18(r.quote.feeBudget18)} USDC</strong> (rounded up; the receipt determines the actual fee).{r.call.operation === "pay" ? "Payment amount is separate." : ""}</p>
+    <p>Native gas uses 18 decimals; the USDC contract uses 6. They represent the same balance and must not be added together.</p>
+    <details><summary>View exact calldata</summary><code>{r.call.data}</code></details>
+    <p>Live fees are checked again before opening your wallet. Changes within your reviewed limits are allowed; limits never increase automatically. The 30-second quote window applies before wallet handoff, not to onchain confirmation. Confirm in your wallet, or reject if you leave it open too long. No automatic signing or resending.</p>
+    <button disabled={op.busy} onClick={op.close}>Back, without signing</button>
+    <button disabled={op.busy} onClick={() => void (remaining === 0 ? op.prepare(r.call) : op.sign())}>{op.busy ? op.stage === "wallet" ? "Confirm in your wallet…" : op.stage === "confirming" ? "Broadcast. Waiting for confirmation…" : op.stage === "verifying" ? "Receipt received. Verifying results…" : "Checking live fees…" : remaining === 0 ? "Refresh quote (no signature)" : "Confirm & open wallet"}</button>
   </section>;
 }

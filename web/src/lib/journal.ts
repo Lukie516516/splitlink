@@ -161,7 +161,7 @@ export class JournalStore {
       const raw = this.storage.getItem(STORAGE_KEY);
       if ((raw ?? "[]") !== serialize(this.records)) this.hydrate();
     } catch {
-      this.warning = "无法读取本机交易记录，保持只读。";
+      this.warning = "Could not read local transaction records. Read-only mode.";
     }
   }
   subscribe = (f: () => void) => {
@@ -331,7 +331,7 @@ export async function recoverRecord(
       return fail("Receipt identity mismatch.");
     const block = await c.getBlock({ blockNumber: receipt.blockNumber });
     if (block.hash !== receipt.blockHash || tx.blockHash !== receipt.blockHash || tx.blockNumber !== receipt.blockNumber)
-      return fail("交易收据尚未匹配规范区块，保持未决。");
+      return fail("The receipt does not yet match a canonical block. Outcome remains unknown.");
     return {
       state: receipt.status === "success" ? "confirmed" : "reverted",
       receiptStatus: receipt.status,

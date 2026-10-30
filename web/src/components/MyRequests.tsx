@@ -58,7 +58,7 @@ export function MyRequests({ revision }: { revision: number }) {
       // Do not let a late head from the old wallet touch the new context's cursor.
       if (gen !== generation.current || key !== context.current) return;
       if (cursor.current && head < cursor.current.head)
-        throw Error("Stale RPC is behind the scanned history head. 重试.");
+        throw Error("Stale RPC is behind the scanned history head. Retry.");
       if (!cursor.current)
         cursor.current = new HistoryCursor(m.deploymentBlock);
       const result = await cursor.current.scan(
@@ -149,9 +149,9 @@ export function MyRequests({ revision }: { revision: number }) {
     const url = requestUrl(m, id);
     try {
       await navigator.clipboard.writeText(url);
-      setMessage("付款链接已复制。");
+      setMessage("Payment link copied.");
     } catch {
-      setMessage(`复制失败，请选择并复制： ${url}`);
+      setMessage(`Copy failed. Select and copy: ${url}`);
     }
   }
   function cancel(id: bigint, r: OnChainRequest) {
@@ -164,27 +164,27 @@ export function MyRequests({ revision }: { revision: number }) {
   }
   return (
     <section className="panel">
-      <h2>我创建的请求</h2>
+      <h2>My requests</h2>
       <button
         disabled={!wallet.account || !m.isDeployed}
         onClick={() => void scan()}
       >
-        刷新历史
+        Refresh history
       </button>
       <p>
         {!wallet.account
-          ? "连接钱包后查询该钱包创建的请求。"
+          ? "Connect your wallet to see requests you created."
           : state === "complete"
             ? rows.length
-              ? "历史读取完成。"
-              : "当前网络未找到此钱包创建的请求。"
+              ? "History is up to date."
+              : "No requests found for this wallet on this network."
             : state === "loading"
-              ? "正在读取公开历史…"
+              ? "Loading public history…"
               : state === "partial"
-                ? "仅取得部分结果，有些历史或请求状态尚不可用。"
+                ? "Partial results. Some history or request states are unavailable."
                 : state === "unconfigured"
-                  ? "部署尚未配置。"
-                  : "History error. 重试; this is not an empty list."}
+                  ? "Deployment is not configured."
+                  : "History could not be loaded. Retry; this is not an empty result."}
       </p>
       <p>{message}</p>
       {rows.map((row) => (
@@ -198,16 +198,16 @@ export function MyRequests({ revision }: { revision: number }) {
                 : `Status unavailable: ${row.error}`}
           </p>
           <p>
-            #{row.id.toString()} · {m.chainName} · 创建时间 at block{" "}
+            #{row.id.toString()} · {m.chainName} · Created at block{" "}
             {row.block.toString()}
           </p>
           {!row.stale && row.request?.status === 2 && (
-            <code>实际付款人： {row.request.payer}</code>
+            <code>Payer: {row.request.payer}</code>
           )}
-          <a href={requestUrl(m, row.id)}>打开请求</a>
-          <button onClick={() => void copy(row.id)}>复制链接</button>
+          <a href={requestUrl(m, row.id)}>Open request</a>
+          <button onClick={() => void copy(row.id)}>Copy link</button>
           {!row.stale && row.request?.status === 2 && (
-            <a href={requestUrl(m, row.id, "receipt")}>查看收据</a>
+            <a href={requestUrl(m, row.id, "receipt")}>View receipt</a>
           )}
           {operationAllowed(m, "cancel") && !row.stale &&
             row.request?.status === 1 &&

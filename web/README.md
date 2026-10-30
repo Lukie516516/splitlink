@@ -1,3 +1,15 @@
+# Current release — Site v13
+
+Live app: https://splitlink.yongzhitangcn.chatgpt.site
+
+Source is bound by [RELEASE-MANIFEST-20261030.json](RELEASE-MANIFEST-20261030.json) to Sites commit `40dbf58ea565db157b8531aa9a5db8256059404f`. This supersedes the v9 source and one-time wallet policy described in historical snapshots below. All wallets now use the normal repeatable create / exact approval / pay flow, with a 0.02 USDC per-transaction maximum gas budget and explicit wallet confirmation. Known mainnet Request 1 settlement is real and receipt-verified.
+
+The interface is English, with a centered split card, responsive navigation and reduced-motion support. After broadcast, receipt arrival and business verification are shown separately. Duplicate identity and block-pinned reads are shared only inside one verification pass; current state, frozen transaction identity, canonical receipt and ordered distribution checks remain.
+
+Validation for the latest change: typecheck, production build, 14 focused checks. No new live transaction or guaranteed latency measurement. Earlier independent reviews apply only to their own exact source snapshots. Studio generation stopped at partial export06; later work was external. Video and final hackathon submission remain pending.
+
+## Historical delivery notes
+
 # SplitLink live wallet application
 
 This directory matches the runtime source published as Site version 9 on 2026-10-29 (Site source commit `960884a6e1306f0d42816b43e963e3eb53e0588c`).

@@ -172,7 +172,7 @@ export async function verifyManifestOnChain(
   };
   try {
     if (m.environment !== "local-mock" && !reviewedIdentity(m))
-      throw Error("未匹配已审 Arc 部署，保持只读。");
+      throw Error("The Arc deployment does not match the reviewed identity. Read-only mode.");
     if (
       !m.isDeployed ||
       !isAddress(m.contractAddress) ||
@@ -247,7 +247,7 @@ export async function verifyManifestOnChain(
         receipt.status !== "success" || receipt.blockNumber !== m.deploymentBlock ||
         receipt.contractAddress?.toLowerCase() !== m.contractAddress.toLowerCase() ||
         receipt.blockHash !== canonical.hash || tx.blockHash !== receipt.blockHash)
-        throw Error("部署交易或规范区块身份不匹配。");
+        throw Error("Deployment transaction or canonical block identity mismatch.");
     }
     if (
       !result.bytecodeHashMatch ||
@@ -291,10 +291,10 @@ export function parseRoute(
     !/^[1-9]\d*$/.test(id) ||
     BigInt(id) >= 2n ** 256n
   )
-    throw Error("付款链接格式无效。");
+    throw Error("Invalid payment link.");
   if (![5042, 5042002, 31338].includes(Number(chain)))
-    throw Error("不支持此网络。");
+    throw Error("Unsupported network.");
   const m = getSupportedManifest(Number(chain), address);
-  if (!m) throw Error("此链接的合约未在本站受支持部署中。");
+  if (!m) throw Error("This contract is not a supported deployment on this site.");
   return { m, id: BigInt(id) };
 }

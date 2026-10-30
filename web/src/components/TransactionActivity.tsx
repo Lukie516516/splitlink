@@ -69,9 +69,9 @@ export function TransactionActivity() {
   }, []);
   return (
     <section className="activity">
-      <h2>本机交易恢复</h2>
+      <h2>Transaction recovery</h2>
       <p>
-        仅按原链只读恢复，不自动签名或重发；交易结果与请求状态分别核验。
+        Read-only recovery on the original network. No automatic signing or resending. Transaction results and request status are verified separately.
       </p>
       {store.warning && (
         <p role="alert" className="error">
@@ -79,11 +79,11 @@ export function TransactionActivity() {
         </p>
       )}
       {!store.records.length ? (
-        <p>本机尚无交易尝试记录。</p>
+        <p>No transaction attempts on this device.</p>
       ) : (
         <>
           <button onClick={() => void recover()} disabled={running}>
-            只读恢复
+            Recover status
           </button>
           {store.records.map((r) => (
             <article key={r.recordId}>
@@ -91,15 +91,15 @@ export function TransactionActivity() {
                 {r.operationType} · {r.txState}
               </strong>
               <p>
-                业务核验： {r.businessVerification} · 原链： {r.chainId}
+                Verification: {r.businessVerification} · Original chain: {r.chainId}
               </p>
-              <code>原钱包： {r.account}</code>
+              <code>Original wallet: {r.account}</code>
               {r.effectiveTxHash && (
-                <code>交易哈希： {r.effectiveTxHash}</code>
+                <code>Transaction hash: {r.effectiveTxHash}</code>
               )}
               {r.actualFee18 && (
                 <p>
-                  实际 gas 费： {formatFee18(BigInt(r.actualFee18))} 原生资产（按实际 gas 用量与价格向上取整显示）
+                  Actual gas fee: {formatFee18(BigInt(r.actualFee18))} native asset (gas used × effective price, rounded up for display)
                 </p>
               )}
               {r.error && <p className="error">{r.error.message}</p>}
@@ -113,17 +113,17 @@ export function TransactionActivity() {
                       BigInt(r.requestId),
                     )}
                   >
-                    打开已核实创建的请求 #{r.requestId}
+                    Open verified request #{r.requestId}
                   </a>
                 )}
-              {r.txState === "unknown" && <p>结果未决：只读恢复，不会自动重签或重发。不要清除存储来重复提交。</p>}
+              {r.txState === "unknown" && <p>Outcome unknown. Recover status only; no automatic signing or resending. Do not clear storage to submit again.</p>}
               {r.dismissedAtMs && (
-                <p>重试 guard dismissed. Outcome remains {r.txState}.</p>
+                <p>Retry guard dismissed. Outcome remains {r.txState}.</p>
               )}
               {["unknown", "submitted"].includes(r.txState) &&
                 Date.now() - r.createdAtMs > 120000 && (
                   <p>
-                    结果仍未决，时间或 nonce 推进不能证明成功或失败，请检查钱包历史。
+                    Outcome remains unknown. Elapsed time or a higher nonce does not prove success or failure. Check wallet activity.
                   </p>
                 )}
             </article>
